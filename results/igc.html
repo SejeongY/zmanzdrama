@@ -39,6 +39,26 @@
   </a>
 </div>
 
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); // 여기에 카카오 앱 키를 입력
+  document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    Kakao.Link.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: document.title,
+        description: '지만지드라마 인물 유형 검사',
+        imageUrl: '../images/igc.jpg', // 공유할 이미지 URL
+        link: {
+          mobileWebUrl: document.URL,
+          webUrl: document.URL
+        }
+      }
+    });
+  });
+</script>
+
     </div>
     <body class="special-page">
   <!-- 페이지 콘텐츠 -->

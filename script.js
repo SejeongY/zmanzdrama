@@ -224,10 +224,6 @@ function displayResult() {
 }
 
 
-
-
-
-
 // 페이지 로드 시 첫 번째 질문을 표시합니다.
 // displayQuestion(); // 이 부분은 주석 처리 또는 삭제합니다. 이벤트 리스너 내부에서 호출될 것입니다.
 
@@ -252,24 +248,3 @@ document.querySelector('.twitter-share-button').addEventListener('click', functi
   const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(document.URL)}&text=${encodeURIComponent(document.title)}`;
   window.open(shareUrl, 'twitterwindow', 'height=300,width=600');
 });
-
-// 카카오톡 공유
-<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-<script>
-  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); // 여기에 카카오 앱 키를 입력
-  document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
-    e.preventDefault();
-    Kakao.Link.sendDefault({
-      objectType: 'feed',
-      content: {
-        title: document.title,
-        description: '지만지드라마 인물 유형 검사',
-        imageUrl: '이미지 URL', // 공유할 이미지 URL
-        link: {
-          mobileWebUrl: document.URL,
-          webUrl: document.URL
-        }
-      }
-    });
-  });
-</script>
