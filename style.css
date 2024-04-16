@@ -4,7 +4,6 @@ body {
     padding-top: 70px;
 }
 .special-page {
-  background-image: url('../images/back_bel.png');
   background-size: cover; /* 배경 이미지가 컨테이너를 꽉 채우도록 설정 */
   background-position: center; /* 배경 이미지가 중앙에 위치하도록 설정 */
 }
@@ -34,6 +33,12 @@ body {
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Binggrae-Two';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Binggrae-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 .fixed-top {
   position: fixed;
@@ -110,8 +115,16 @@ h5 {
 }
 
 #question-container {
-    margin-bottom: 20px;
-    text-align: center;
+    font-family: 'Binggrae-Two';
+    font-size: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    text-align: left;
+    background-color: white;
 }
 
 #buttons-container {
@@ -124,6 +137,7 @@ button {
     border-radius: 25px;
     margin: 0 auto;
     padding: 10px 20px;
+    font-family: 'Pretendard-Regular';
     font-size: 16px;
     background-color: #545454;
     color: #f2829b;
@@ -150,11 +164,13 @@ button:hover {
 }
 
 .share-buttons-container {
-  display: flex;
-  justify-content: center; /* 수평 중앙 정렬 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 a.twitter-share-button, a.kakao-share-button {
+    font-family: 'Pretendard-Regular';
   color: black;
   padding: 10px 20px;
   margin: 5px;
@@ -162,6 +178,7 @@ a.twitter-share-button, a.kakao-share-button {
   text-decoration: none;
   display: inline-block;
   border: 2px solid #000000;
+  display: block;
 }
 
 a.twitter-share-button {
