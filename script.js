@@ -233,6 +233,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
         // "시작하기" 버튼을 숨깁니다.
         startButton.style.display = 'none';
 
+        document.querySelector('.share-buttons-container').style.display = 'none';
+        document.querySelector('.instagram-button').style.display = 'none';
+        document.querySelector('.main-image').style.display = 'none';
+
         // 질문과 답변 버튼 컨테이너를 보이게 합니다.
         document.getElementById('question-container').style.display = 'block';
         document.getElementById('buttons-container').style.display = 'block';

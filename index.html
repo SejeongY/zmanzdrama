@@ -14,14 +14,56 @@
     <div class="container">
         <h1>지만지드라마
         <br>나와 닮은 희곡 속 등장인물은? </h1>
-       
+       <img src="images/index.jpg" class="main-image"> <br>
   <button id="startButton">시작하기</button>
+
+
+
         <div id="question-container" style="display: none;">
     <!-- 질문이 여기에 나타납니다. -->
 </div>
         <div id="buttons-container" style="display: none;">
     <!-- 답변 버튼이 여기에 나타납니다. -->
 </div>
+
+<!-- 인스타그램 버튼 -->
+        <button class="instagram-button" onclick="location.href='https://www.instagram.com/zmanzdrama/';"><i class="fa-brands fa-instagram"></i> 지만지드라마 인스타그램</button>
+
+<div class="share-buttons-container">
+    <div>
+  <!-- 트위터 공유 버튼 -->
+  <a href="#" class="twitter-share-button">
+    <i class="fab fa-twitter"></i> 트위터(X)로 공유하기
+  </a>
+</div>
+<div>
+  <!-- 카카오톡 공유 버튼 -->
+  <a href="#" class="kakao-share-button">
+    <i class="fas fa-comment"></i> 카톡으로 공유하기
+  </a>
+</div>
+</div>
+
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); //
+  document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    Kakao.Link.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: document.title,
+        description: '나와 닮은 희곡 속 등장인물은?',
+        imageUrl: 'https://zmanzdrama.netlify.app/images/index.jpg', // 공유할 이미지 URL
+        link: {
+          mobileWebUrl: document.URL,
+          webUrl: document.URL
+        }
+      }
+    });
+  });
+</script>
+    </div>
 
     <script src="script.js"></script>
     
