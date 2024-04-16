@@ -131,6 +131,7 @@ button {
     display: block;
     margin-bottom: 10px;
     text-align: center;
+    border: 2px solid #000000;
 }
 
 #startButton {
@@ -148,3 +149,48 @@ button:hover {
     text-align: center;
 }
 
+.share-buttons-container {
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+}
+
+a.twitter-share-button, a.kakao-share-button {
+  color: black;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 25px;
+  text-decoration: none;
+  display: inline-block;
+  border: 2px solid #000000;
+}
+
+a.twitter-share-button {
+  background-color: #1DA1F2; /* 트위터 색상 */
+}
+
+a.kakao-share-button {
+  background-color: #FEE500; /* 카카오톡 색상 */
+}
+
+a:hover {
+    border: 2px solid #545454;
+    background-color: #f2829b;
+    color: #545454;
+}
+
+.instagram-button {
+    border-radius: 25px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: white;
+    color: #f2829b;
+    cursor: pointer;
+    display: block;
+    margin-bottom: 10px;
+    text-align: center; 
+}
+
+i {
+    cursor: pointer;
+}

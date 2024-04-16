@@ -245,3 +245,31 @@ document.addEventListener('DOMContentLoaded', function(event) {
         displayQuestion();
     });
 });
+
+// 트위터 공유
+document.querySelector('.twitter-share-button').addEventListener('click', function(e) {
+  e.preventDefault();
+  const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(document.URL)}&text=${encodeURIComponent(document.title)}`;
+  window.open(shareUrl, 'twitterwindow', 'height=300,width=600');
+});
+
+// 카카오톡 공유
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); // 여기에 카카오 앱 키를 입력
+  document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    Kakao.Link.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: document.title,
+        description: '지만지드라마 인물 유형 검사',
+        imageUrl: '이미지 URL', // 공유할 이미지 URL
+        link: {
+          mobileWebUrl: document.URL,
+          webUrl: document.URL
+        }
+      }
+    });
+  });
+</script>
