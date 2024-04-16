@@ -180,40 +180,40 @@ function displayResult() {
     // 결과 문자열에 따라 해당 결과 페이지 URL을 결정합니다.
     switch(result) {
         case 'EGL':
-            resultPageUrl = 'egl.html';
+            resultPageUrl = 'results/egl.html';
             break;
         case 'EGN':
-            resultPageUrl = 'egn.html';
+            resultPageUrl = 'results/egn.html';
             break;
         case 'EGC':
-            resultPageUrl = 'egc.html';
+            resultPageUrl = 'results/egc.html';
             break;
         case 'EBL':
-            resultPageUrl = 'ebl.html';
+            resultPageUrl = 'results/ebl.html';
             break;
         case 'EBN':
-            resultPageUrl = 'ebn.html';
+            resultPageUrl = 'results/ebn.html';
             break;
         case 'EBC':
-            resultPageUrl = 'ebc.html';
+            resultPageUrl = 'results/ebc.html';
             break;
         case 'IGL':
-            resultPageUrl = 'igl.html';
+            resultPageUrl = 'results/igl.html';
             break;
         case 'IGN':
-            resultPageUrl = 'ign.html';
+            resultPageUrl = 'results/ign.html';
             break;
         case 'IGC':
-            resultPageUrl = 'igc.html';
+            resultPageUrl = 'results/igc.html';
             break;
         case 'IBL':
-            resultPageUrl = 'ibl.html';
+            resultPageUrl = 'results/ibl.html';
             break;
         case 'IBN':
-            resultPageUrl = 'ibn.html';
+            resultPageUrl = 'results/ibn.html';
             break;
         case 'IBC':
-            resultPageUrl = 'ibc.html';
+            resultPageUrl = 'results/ibc.html';
             break;
         default:
             resultPageUrl = 'index.html'; // 기본적으로 홈페이지나 결과가 없는 경우를 위한 페이지
