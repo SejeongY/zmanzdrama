@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>당신과 닮은 희곡 속 등장인물은? — 《영원한 평화》의 존존</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+       <div class="fixed-top">
+  zmanzdrama <i class="fa-brands fa-instagram" onclick="location.href='https://www.instagram.com/zmanzdrama/';"></i>
+</div>
+    <div class="container">
+        <h2>당신과 닮은 희곡 속 등장인물은?</h2>
+        <img src="../images/johnjohn.jpg" style="max-width: 100%; height: auto;">
+        <h3><span class="name">《영원한 평화》의 존존</span><br>자신감 넘치는 근육 강아지</h3>
+        <h4>객관적, 논리적, 현실적, 실용적인 대표 유형입니다. 당신은 체계적으로 일하고 규칙을 준수해 FM으로 업무를 처리하며 목표에 대해 강한 의지를 가지고 있습니다. 생각보다 행동이 먼저 나가는 행동파이며 단순하고 쾌활한 면이 있습니다. <br><br>이런 당신에게 어울리는 캐릭터는 《영원한 평화》의 존존입니다.</h4>
+        <h5>대테러부대 K7 입사를 희망하는 혼종 강아지다. 다른 입사 지원견에 따르면 “복서에다 로트바일러에다 핏불에다 불도그인데” 약까지 하는 것 같다. 그만큼 공격적이다. 
+어려서부터 K7 입사를 목적으로 고된 훈련을 견뎠고, 최우수 성적으로 훈련을 마쳤다.미국적 실용주의의 현현(존존이란 이름은 존 케네디에서 딴 것이라고 한다). 어느 정도 순진한 면이 있어 다른 지원견들의 놀림거리가 된다.</h5>
+        
+
+    
+        <!-- 다시하기 버튼 -->
+        <button onclick="window.location.href='../index.html';"><i class="fa-regular fa-circle-left"></i> 유형검사 다시하기</button>
+        <!-- 인스타그램 버튼 -->
+        <button class="instagram-button" onclick="window.open('https://www.instagram.com/zmanzdrama/', '_blank');"><i class="fa-brands fa-instagram"></i> 지만지드라마 인스타그램</button>
+
+<div class="share-buttons-container">
+    <div>
+  <!-- 트위터 공유 버튼 -->
+  <a href="#" class="twitter-share-button">
+    <i class="fab fa-twitter"></i> 트위터(X)로 공유하기
+  </a>
+</div>
+<div>
+  <!-- 카카오톡 공유 버튼 -->
+  <a href="#" class="kakao-share-button">
+    <i class="fas fa-comment"></i> 카톡으로 공유하기
+  </a>
+</div>
+</div>
+
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); //
+  document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    Kakao.Link.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: document.title,
+        description: '나와 닮은 희곡 속 등장인물은?',
+        imageUrl: 'https://zmanzdrama.netlify.app/images/johnjohn.jpg', // 공유할 이미지 URL
+        link: {
+          mobileWebUrl: document.URL,
+          webUrl: document.URL
+        }
+      }
+    });
+  });
+</script>
+
+    </div>
+    <body class="special-page"; style="background-image: url('../images/back_johnjohn.png');">
+  
+</body>
+
+    <script src="../script.js"></script>
+</body>
+</html>

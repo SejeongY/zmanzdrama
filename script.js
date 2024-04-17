@@ -180,40 +180,40 @@ function displayResult() {
     // 결과 문자열에 따라 해당 결과 페이지 URL을 결정합니다.
     switch(result) {
         case 'EGL':
-            resultPageUrl = 'results/egl.html';
+            resultPageUrl = 'results/sirano.html';
             break;
         case 'EGN':
-            resultPageUrl = 'results/egn.html';
+            resultPageUrl = 'results/bottom.html';
             break;
         case 'EGC':
-            resultPageUrl = 'results/egc.html';
+            resultPageUrl = 'results/puck.html';
             break;
         case 'EBL':
-            resultPageUrl = 'results/ebl.html';
+            resultPageUrl = 'results/johnjohn.html';
             break;
         case 'EBN':
-            resultPageUrl = 'results/ebn.html';
+            resultPageUrl = 'results/jeannedarc.html';
             break;
         case 'EBC':
-            resultPageUrl = 'results/ebc.html';
+            resultPageUrl = 'results/salome.html';
             break;
         case 'IGL':
-            resultPageUrl = 'results/igl.html';
+            resultPageUrl = 'results/ophelia.html';
             break;
         case 'IGN':
-            resultPageUrl = 'results/ign.html';
+            resultPageUrl = 'results/grandemonsieur.html';
             break;
         case 'IGC':
-            resultPageUrl = 'results/igc.html';
+            resultPageUrl = 'results/petitfille.html';
             break;
         case 'IBL':
-            resultPageUrl = 'results/ibl.html';
+            resultPageUrl = 'results/alan.html';
             break;
         case 'IBN':
-            resultPageUrl = 'results/ibn.html';
+            resultPageUrl = 'results/scarpa.html';
             break;
         case 'IBC':
-            resultPageUrl = 'results/ibc.html';
+            resultPageUrl = 'results/medea.html';
             break;
         default:
             resultPageUrl = 'index.html'; // 기본적으로 홈페이지나 결과가 없는 경우를 위한 페이지

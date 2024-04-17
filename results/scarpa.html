@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>당신과 닮은 희곡 속 등장인물은? — 《비평가》의 스카르파</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+       <div class="fixed-top">
+  zmanzdrama <i class="fa-brands fa-instagram" onclick="location.href='https://www.instagram.com/zmanzdrama/';"></i>
+</div>
+    <div class="container">
+        <h2>당신과 닮은 희곡 속 등장인물은?</h2>
+        <img src="../images/scarpa.jpg" style="max-width: 100%; height: auto;">
+        <h3><span class="name">《비평가》의 스카르파</span><br>남 얘기 엄청 신경 쓰는 (지금은) 흥행 작가</h3>
+        <h4>구체적인 사실을 중요시하고 사교성이 뛰어난 당신은 많은 사람들과 함께 하는 자리에서 능력을 발휘합니다. 타인의 의견을 존중하고 다른 의견에 대해서도 우호적이지만 비판에 예민하고 속에 오래 담아 두는 편입니다. 일을 좋아하고 명예를 중요하게 여기는 경향이 있습니다. <br><br>이런 당신에게 어울리는 캐릭터는 《비평가》의 스카르파입니다.</h4>
+        <h5>참신한 작품으로 주목받던 신예였는데, 권위 있는 비평가 볼로디아의 냉혹한 관극평에 상처받아 절필했다. 최근 발표한 작품은 대성공. 공연이 끝나자마자 와인 한 병을 들고 일면식도 없는 볼로디아 집을 방문한다. “한줄 평에 뭐라고 쓰겠습니까?” 사실 스카르파는 꽤 오래 볼로디아를 한 방 먹일 강력한 펀치를 준비했다.. 그러니까 스카르파가 볼로디아를 찾아온 건 복수를 위해서다. </h5>
+        
+
+    
+        <!-- 다시하기 버튼 -->
+        <button onclick="window.location.href='../index.html';"><i class="fa-regular fa-circle-left"></i> 유형검사 다시하기</button>
+        <!-- 인스타그램 버튼 -->
+        <button class="instagram-button" onclick="window.open('https://www.instagram.com/zmanzdrama/', '_blank');"><i class="fa-brands fa-instagram"></i> 지만지드라마 인스타그램</button>
+
+<div class="share-buttons-container">
+    <div>
+  <!-- 트위터 공유 버튼 -->
+  <a href="#" class="twitter-share-button">
+    <i class="fab fa-twitter"></i> 트위터(X)로 공유하기
+  </a>
+</div>
+<div>
+  <!-- 카카오톡 공유 버튼 -->
+  <a href="#" class="kakao-share-button">
+    <i class="fas fa-comment"></i> 카톡으로 공유하기
+  </a>
+</div>
+</div>
+
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); //
+  document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    Kakao.Link.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: document.title,
+        description: '나와 닮은 희곡 속 등장인물은?',
+        imageUrl: 'https://zmanzdrama.netlify.app/images/scarpa.jpg', // 공유할 이미지 URL
+        link: {
+          mobileWebUrl: document.URL,
+          webUrl: document.URL
+        }
+      }
+    });
+  });
+</script>
+
+    </div>
+    <body class="special-page"; style="background-image: url('../images/back_scarpa.png');">
+  
+</body>
+
+    <script src="../script.js"></script>
+</body>
+</html>
