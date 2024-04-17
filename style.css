@@ -158,11 +158,15 @@ button {
     margin: 0 auto; /* 수평 마진을 자동으로 설정하여 중앙 정렬 */
 }
 
+@media(hover:hover) {
 button:hover {
     background-color: #f2829b;
     color: #545454;
     border: 2px solid #545454;
+    }
 }
+
+
 
 #result {
     text-align: center;
