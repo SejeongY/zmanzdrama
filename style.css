@@ -129,7 +129,7 @@ h7 {
     margin-bottom: 30px;
     text-align: center;
     background-color: white;
-    height: 90px;
+    height: 140px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -189,18 +189,30 @@ button:hover {
 }
 
 @media (max-width: 600px) {
-h1 {
+h1, h2 {
     font-size: 7vw !important;
     }
 
+h3 {
+    font-size: 6vw !important;
+}
+
 #question-container {
-    font-size: 3.3vw !important;
+    font-size: 3.9vw !important;
+    height: 90px;
     }
     
 #buttons-container button {
-    height: 60px;
+    height: 55px;
     width: 80%;
-    font-size: 4vw;
+    font-size: 3.5vw;
+    }
+
+ #question-container p {
+    margin: 0;
+    line-height: 1.2;
+    max-width: 100%;
+    text-align: center;
     }
 }
 
@@ -261,8 +273,25 @@ i {
 
 .main-image {
     display: block; /* 이미지를 블록 요소로 설정 */
-    max-width: 90%; /* 이미지 최대 너비를 부모 컨테이너의 100%로 제한 */
+    max-width: 100%; /* 이미지 최대 너비를 부모 컨테이너의 100%로 제한 */
     height: auto; /* 이미지의 높이를 자동으로 설정하여 종횡비 유지 */
     margin: 0 auto; /* 이미지를 수평 중앙에 배치 */
     margin-top: 15px;
+}
+
+#progress-container {
+    width: 100%;
+    background-color: #f3f3f3; /* 진행도 바의 배경색 */
+    height: 10px; /* 진행도 바의 높이 */
+    margin-bottom: 20px; /* 진행도 바와 질문/답변 사이의 간격 */
+    border-radius: 5px; /* 진행도 바의 모서리를 둥글게 설정 */
+    overflow: hidden; /* 진행 바가 모서리를 넘지 않도록 설정 */
+    border: 2px solid #545454; /* 테두리 설정: 두께, 스타일, 색상 */
+}
+
+#progress-bar {
+    width: 0%; /* 초기 진행도를 0%로 설정 */
+    height: 100%;
+    background-color: #00ddcb; /* 진행도 바의 색상 */
+    transition: width 0.3s ease; /* 진행도 바의 애니메이션 효과 */
 }

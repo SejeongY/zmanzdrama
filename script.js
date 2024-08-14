@@ -28,7 +28,7 @@ var questions = [
         ]
         },
            {
-        question: "기후 위기로 식량과 물이 부족한 근미래,<br>누군가 옆으로 다가와 굶주린 얼굴로 당신을 바라본다.",
+        question: "기후 위기로 식량과 물이 부족한 근미래,<br>누군가 옆으로 다가와 당신을 바라본다.",
         answers: [
             { value: "G", text: "함께 나눠 먹는다." },
             { value: "B", text: "혼자 먹기에도 부족한데… 무시한다." }
@@ -49,7 +49,7 @@ var questions = [
         ]
         },
              {
-        question: "출퇴근/등하굣길, <br>서너 걸음 앞에 적당히 친한 동료, 친구가 가고 있다면,",
+        question: "출퇴근/등하굣길, 서너 걸음 앞에 <br>적당히 친한 동료, 친구가 가고 있다면,",
         answers: [
             { value: "I", text: "걷는 속도를 늦춰 본다" },
             { value: "E", text: "쫓아가 인사한다." }
@@ -104,12 +104,14 @@ var questions = [
 function displayQuestion() {
     var questionContainer = document.getElementById('question-container');
     var buttonsContainer = document.getElementById('buttons-container');
+    var progressBar = document.getElementById('progress-bar');
+    var progressContainer = document.getElementById('progress-container');
     var question = questions[currentQuestionIndex];
 
     // 질문 컨테이너의 내용을 설정합니다.
     questionContainer.innerHTML = '<p>' + question.question + '</p>';
 
-    // 이전에 생성된 버튼들을 제거합니다.wl
+    // 이전에 생성된 버튼들을 제거합니다.
     buttonsContainer.innerHTML = '';
 
     // 각 답변에 대한 버튼을 생성하고 표시합니다.
@@ -121,7 +123,15 @@ function displayQuestion() {
         });
         buttonsContainer.appendChild(button);
     });
+
+    // 진행도 바 업데이트
+    var progress = (currentQuestionIndex / questions.length) * 100; // 첫 질문에서 0%로 시작하도록 수정
+    progressBar.style.width = progress + '%';
+
+    // 진행도 바 표시
+    progressContainer.style.display = 'block';
 }
+
 
 // 페이지 로드 시 첫 번째 질문을 표시하는 코드를 호출하는 부분이 이미 마지막에 있으므로, 이 부분은 문제가 없습니다.
 
@@ -252,3 +262,4 @@ document.querySelector('.twitter-share-button').addEventListener('click', functi
   const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(document.URL)}&text=${encodeURIComponent(document.title)}`;
   window.open(shareUrl, 'twitterwindow', 'height=300,width=600');
 });
+
