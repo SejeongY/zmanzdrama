@@ -1,9 +1,9 @@
 var questions = [
     {
-        question: "오래 기다려 온 연극을 보러간 당신, 두근두근하며 자리에 앉아 관람을 시작한다. 한창 집중해 보고 있는데 옆자리 관객이 알고 보니 빌런이다. 이때 당신은?",
+        question: "오래 기다린 연극을 보러 간 당신, <br>옆자리 관객이 알고 보니 빌런이다.",
         answers: [
             { value: "E", text: "조금 조용히 해 달라고 말한다." },
-            { value: "I", text: "연극 내내 집중하지 못하지만 옆 사람에게 뭐라 할 용기는 없다." }
+            { value: "I", text: "연극 내내 집중하지 못하지만 <br>옆 사람에게 뭐라 할 용기는 없다." }
         ]
     },
     {
@@ -28,7 +28,7 @@ var questions = [
         ]
         },
            {
-        question: "기후 위기로 식량과 물이 부족한 근미래, 누군가 옆으로 다가와 굶주린 얼굴로 당신을 바라본다. 쌀의 양은 당신 혼자 먹기에도 역부족이다.",
+        question: "기후 위기로 식량과 물이 부족한 근미래,<br>누군가 옆으로 다가와 굶주린 얼굴로 당신을 바라본다.",
         answers: [
             { value: "G", text: "함께 나눠 먹는다." },
             { value: "B", text: "혼자 먹기에도 부족한데… 무시한다." }
@@ -37,8 +37,8 @@ var questions = [
      {
         question: "이번 주에 봐야 할 연극이 세 편일 때,",
         answers: [
-            { value: "C", text: "예매 사이트에서 하루 전에 카톡으로 알려 주던데?" },
-            { value: "L", text: "스케줄 미리미리 확인해야지, 극장 어디 있는지도 찾아보고..." }
+            { value: "C", text: "예매 사이트에서 하루 전에 <br>카톡으로 알려 주던데?" },
+            { value: "L", text: "스케줄 미리미리 확인해야지, <br>극장 어디 있는지도 찾아보고..." }
         ]
         },
      {
@@ -49,7 +49,7 @@ var questions = [
         ]
         },
              {
-        question: "출퇴근/등하굣길, 서너 걸음 앞에 적당히 친한 동료, 친구가 가고 있다면,",
+        question: "출퇴근/등하굣길, <br>서너 걸음 앞에 적당히 친한 동료, 친구가 가고 있다면,",
         answers: [
             { value: "I", text: "걷는 속도를 늦춰 본다" },
             { value: "E", text: "쫓아가 인사한다." }
@@ -72,8 +72,8 @@ var questions = [
      {
         question: "희곡 읽기 모임에 가서,",
         answers: [
-            { value: "E", text: "배역과 상황에 알맞은 톤으로 연기를 살짝 가미해서 읽어 본다." },
-            { value: "I", text: "차분히 할당된 부분 틀리지 않고 읽는 데 집중한다." }
+            { value: "E", text: "배역과 상황에 알맞은 톤으로 <br>연기를 살짝 가미해서 읽어 본다." },
+            { value: "I", text: "차분히 할당된 부분 <br>틀리지 않고 읽는 데 집중한다." }
         ]
         },
      {
@@ -86,7 +86,7 @@ var questions = [
      {
         question: "희곡 인물이 여러 명이다. 헷갈려!",
         answers: [
-            { value: "C", text: "끝까지 읽다 보면 알아서 이해되지 않을까?" },
+            { value: "C", text: "끝까지 읽다 보면 <br>알아서 이해되지 않을까?" },
             { value: "L", text: "인물 정리 후 정독해야지!" }
         ]
         },
@@ -94,7 +94,7 @@ var questions = [
         question: "너무 좋은 희곡을 발견했다.",
         answers: [
             { value: "I", text: "조용히 나만 알고 있는다." },
-            { value: "E", text: "카톡이나 인스스로 바로 누군가에게 추천한다." }
+            { value: "E", text: "카톡이나 인스스로 <br>바로 누군가에게 추천한다." }
         ]
         }
     // 나머지 질문들 추가
@@ -115,7 +115,7 @@ function displayQuestion() {
     // 각 답변에 대한 버튼을 생성하고 표시합니다.
     question.answers.forEach(function(answer, index) {
         var button = document.createElement('button');
-        button.innerText = answer.text;
+        button.innerHTML = answer.text;
         button.addEventListener('click', function() {
             nextQuestion(answer.value);
         });

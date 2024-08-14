@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7WNYD5DYGC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-7WNYD5DYGC');
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>지만지드라마 나와 닮은 희곡 캐릭터는?</title>
@@ -28,11 +18,12 @@
 
 
 
-        <div id="question-container" style="display: none;">
-    <!-- 질문이 여기에 나타납니다. -->
+  <div id="question-container" style="display: none;">
+    <p>질문 텍스트가 여기에 들어갑니다.</p>
 </div>
         <div id="buttons-container" style="display: none;">
     <!-- 답변 버튼이 여기에 나타납니다. -->
+
 </div>
 
 <!-- 인스타그램 버튼 -->
@@ -56,7 +47,7 @@
 
 <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script>
-  Kakao.init('b3eaaab5d1e81a0350276fe9eb901d66'); //
+  Kakao.init('ebe32603af5a77385396832db327f040'); //
   document.querySelector('.kakao-share-button').addEventListener('click', function(e) {
     e.preventDefault();
     Kakao.Link.sendDefault({
