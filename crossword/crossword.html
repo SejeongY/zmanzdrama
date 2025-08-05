@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>지만지드라마 십자말풀이</title>
+    <meta property="og:title" content="지만지드라마 십자말풀이">
+    <meta property="og:description" content="희곡지왕(戱曲之王)에 도전해 보세요!">
+    <meta property="og:image" content="https://zmanzdrama.netlify.app/crossword/crossword_thumb.jpg">
+    <meta property="og:url" content="https://zmanzdrama.netlify.app/crossword/crossword.html">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script>
+        Kakao.init('ebe32603af5a77385396832db327f040'); // 여기에 본인의 카카오 자바스크립트 키를 입력하세요
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+    
+        :root {
+            --main-pink: #ff69b4;
+            --light-pink: #fff0f5;
+            --dark-pink: #c71585;
+            --soft-pink: #ffe9f4;
+            --background-color: #fdfaf6;
+            --text-color: #333;
+            --border-color: #eee;
+            --inactive-color: #f2f2f2;
+        }
+
+        /* --- ✨ 1. 기본 레이아웃 수정 ✨ --- */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 전체 페이지 스크롤 방지 */
+            background-color: var(--soft-pink); /* 앱 바깥 배경색 */
+        }
+    
+        body {
+            font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+            color: var(--text-color);
+            -webkit-text-size-adjust: 100%; /* iOS에서 글자 크기 자동 조절 방지 */
+        }
+
+        /* --- ✨ 2. 앱 전체를 감싸는 컨테이너 추가 ✨ --- */
+        #app-container {
+            width: 100%;
+            max-width: 500px; /* 데스크탑에서 최대 너비 */
+            height: 100%;
+            margin: 0 auto; /* 데스크탑에서 중앙 정렬 */
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 20px; /* 내부 여백 */
+            box-sizing: border-box;
+            overflow-y: auto; /* 컨테이너 내부만 스크롤되도록 설정 */
+            -ms-overflow-style: none; /* IE, Edge 스크롤바 숨기기 */
+            scrollbar-width: none; /* Firefox 스크롤바 숨기기 */
+        }
+        #app-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari 스크롤바 숨기기 */
+        }
+    
+        h1 {
+            color: var(--main-pink);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0 0 15px 0; /* 상단 마진 제거, 하단 마진 조정 */
+            font-size: clamp(1.5em, 7vw, 1.8em);
+            text-align: center;
+        }
+
+        /* --- ✨ 3. 요소별 여백 및 너비 조정 ✨ --- */
+        .intro-text {
+            width: 100%; /* 부모 컨테이너 너비에 맞춤 */
+            margin: 0 0 25px 0; /* 상단 마진 제거, 하단 마진 조정 */
+            padding: 15px 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+            text-align: left;
+            font-size: clamp(0.85em, 3.5vw, 0.95em);
+            color: #555;
+            line-height: 1.7;
+            box-sizing: border-box;
+        }
+
+        #crossword-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px; /* 하단 여백 추가 */
+        }
+    
+        #crossword-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 8.5vw);
+            grid-template-rows: repeat(10, 8.5vw);
+            max-width: 450px;
+            max-height: 450px;
+            gap: 2px;
+            background-color: #ccc;
+            border-radius: 8px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+    
+        .grid-cell {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1em, 4vw, 1.2em);
+            font-weight: bold;
+            box-sizing: border-box;
+            background-color: var(--inactive-color);
+            position: relative;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+    
+        .grid-cell.active { background-color: #fff; cursor: pointer; }
+        .grid-cell.filled { background-color: var(--light-pink); color: var(--dark-pink); }
+        .grid-cell.selected { border: 3px solid var(--main-pink); transform: scale(1.05); z-index: 10; }
+    
+        .cell-number {
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            font-size: 0.6em;
+            color: #888;
+        }
+        
+        .ui-container, #input-area {
+            width: 100%; /* 부모 컨테이너 너비에 맞춤 */
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+    
+        .ui-container {
+            margin-top: 0; /* 상단 여백 제거 */
+            margin-bottom: 15px; /* 하단 여백 추가 */
+            padding: 10px 15px;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+        }
+    
+        #hint-text {
+            font-size: clamp(0.85em, 3.5vw, 1em);
+            color: #555;
+            line-height: 1.5;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+        }
+    
+        #input-area {
+            margin-top: 0; /* 상단 여백 제거 */
+            display: flex;
+            gap: 10px;
+        }
+    
+        #answer-input {
+            flex-grow: 1;
+            padding: 15px;
+            font-size: 1em;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+        }
+    
+        #submit-answer {
+            padding: 15px 20px;
+            font-size: clamp(14px, 4vw, 16px); 
+            font-weight: bold;
+            background-color: var(--main-pink);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap; 
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+        }
+        #submit-answer:hover {
+            background-color: var(--dark-pink);
+        }
+
+
+        /* [3] 전체 푸터 영역 간격 조정 */
+        #footer-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin-top: 45px; /* 제출하기 버튼과의 간격을 더 줌 */
+            padding-bottom: 20px;
+        }
+
+        /* 각 아이콘 그룹 */
+        #social-links,
+        #share-feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 모든 원형 아이콘 버튼의 공통 모양 */
+        #social-links a,
+        #share-toggle-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease-in-out;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+        }
+
+        /* 소셜 '방문' 버튼 색상 */
+        #social-links a {
+            background-color: #ffffff;
+            border: 1px solid #eee;
+        }
+
+        /* '공유' 토글 버튼 색상 */
+        #share-toggle-button {
+            background-color: var(--soft-pink);
+            border: 1px solid #e5e5e5;
+        }
+
+        /* 아이콘 내부 이미지/SVG 크기 및 색상 */
+        #social-links img,
+        #share-toggle-button svg {
+            width: 28px;
+            height: 28px;
+            vertical-align: middle;
+        }
+        #share-toggle-button svg {
+            fill: #555555;
+        }
+
+        /* 호버 효과 */
+        #social-links a:hover,
+        #share-toggle-button:hover {
+            transform: translateY(-3px);
+        }
+
+        /* --- ✨ 펼침 메뉴 핵심 수정 (v2) ✨ --- */
+
+        /* 공유 기능 컨테이너 */
+        #share-feature {
+            position: relative;
+        }
+
+        /* 펼쳐질 아이콘들을 감싸는 컨테이너 (애니메이션 기준점) */
+        #share-options {
+            position: absolute;
+            /* 기준점을 공유 버튼의 정중앙으로 설정 */
+            bottom: 25px;
+            left: 25px;
+            width: 0;
+            height: 0;
+        }
+
+        /* 각 공유 버튼 (기본 상태: 중앙에 작게 숨겨짐) */
+        .share-option-btn {
+            position: absolute;
+            /* 아이콘의 중심을 기준점(0,0)에 맞춤 */
+            top: 0;
+            left: 0;
+            /* 중앙에서 0% 크기로 시작 */
+            transform: translate(-50%, -50%) scale(0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            /* 통통 튀는 애니메이션 효과 */
+            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            opacity: 0; /* 시작 시 투명 */
+        }
+
+        /* 메뉴가 펼쳐졌을 때의 최종 상태 */
+        #share-options.visible .share-option-btn {
+            opacity: 1;
+            /* 크기를 원래대로 돌림 */
+            transform-origin: center center;
+        }
+
+        /* 카카오 버튼 (2시 방향) */
+        #share-options.visible .share-option-btn.kakao {
+            transform: translate(40px, -20px) scale(1);
+        }
+
+        /* X 버튼 (1시 방향) */
+        #share-options.visible .share-option-btn.x {
+            transform: translate(20px, -65px) scale(1);
+        }
+
+        /* 각 버튼의 고유 색상 지정 */
+        .share-option-btn.kakao {
+            background-color: #FEE500;
+        }
+        .share-option-btn.x {
+            background-color: #5cb6ff; /* 하늘색 */
+        }
+
+        /* 호버 시 약간 커지는 효과 */
+        .share-option-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .share-option-btn img {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+        }
+
+        @media (min-width: 600px) {
+            #crossword-grid {
+                grid-template-columns: repeat(10, 42px);
+                grid-template-rows: repeat(10, 42px);
+                gap: 3px;
+                padding: 5px;
+            }
+            .grid-cell { font-size: 1.2em; }
+            .cell-number { font-size: 0.7em; top: 2px; left: 3px; }
+            #hint-text { font-size: 1.1em; }
+            #answer-input, #submit-answer { font-size: 1.1em; }
+        }
+
+        /* --- ✨ 4. 팝업 스타일 수정 ✨ --- */
+        .popup-overlay {
+            position: fixed; /* 전체 화면을 덮도록 유지 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            padding: 20px; /* 팝업이 화면 가장자리에 붙지 않도록 */
+            box-sizing: border-box;
+        }
+        .popup-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup {
+            background-color: white;
+            padding: 30px 25px; /* 패딩 조정 */
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%; /* 너비를 100%로 설정 */
+            max-width: 400px; /* 최대 너비는 유지 */
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .popup-overlay.visible .popup {
+            transform: scale(1);
+        }
+        .popup h2 {
+            color: var(--main-pink);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .popup p {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* --- ✨ 팝업 내 공유 버튼 스타일 ✨ --- */
+        .popup-share-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .share-prompt {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0 0 15px 0;
+        }
+
+        #popup-share-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .popup-share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .popup-share-btn:hover {
+            opacity: 0.8;
+        }
+
+        .popup-share-btn img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .popup-share-btn.kakao {
+            background-color: #FEE500;
+            color: #191919;
+        }
+
+        .popup-share-btn.x {
+            background-color: #5cb6ff;
+            color: #191919;
+        }
+
+        #google-form-proxy {
+            display: flex;
+            flex-direction: column;
+        }
+        #google-form-proxy input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        #google-form-proxy button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            background-color: var(--main-pink);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #google-form-proxy button:hover {
+            background-color: var(--dark-pink);
+        }
+        #close-popup {
+            margin-top: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>지만지드라마 십자말풀이</h1>
+
+        <div class="intro-text">
+            지만지드라마 희곡에 대한 지식을 총동원해 십자말풀이를 풀어 주세요!<br>
+            전화 찬스, 지인 찬스, 검색 찬스 모두 가능합니다.<br>
+            십자말풀이 완성 후 이메일 주소를 남겨 주시면 신간 증정 이벤트에 자동 응모됩니다.<br>
+            당첨되신 분께는 “희곡지왕(戱曲之王)”에 대한 깊은 존경과 감사를 담아 최신간 희곡을 보내 드립니다.
+        </div>
+        
+        <div id="crossword-container">
+            <div id="crossword-grid"></div>
+        </div>
+    
+        <div id="hint-area" class="ui-container">
+            <p id="hint-text">칸을 클릭하여 힌트를 확인하세요.</p>
+        </div>
+    
+        <div id="input-area">
+            <input type="text" id="answer-input" placeholder="정답을 입력하세요">
+            <button id="submit-answer">정답 확인</button>
+        </div>
+        <div id="footer-actions">
+            <div id="social-links">
+                <a href="https://www.instagram.com/zmanzdrama/" target="_blank" title="지만지드라마 인스타그램"><img src="ig.png" alt="Instagram"></a>
+                <a href="https://x.com/jimanjideulama" target="_blank" title="지만지드라마 X"><img src="x.png" alt="X"></a>
+                <a href="https://zmanzdrama.com/" target="_blank" title="지만지드라마 홈페이지"><img src="home.png" alt="Homepage"></a>
+            </div>
+        
+            <div class="separator"></div>
+        
+            <div id="share-feature">
+                <div id="share-options">
+                    <a href="javascript:shareToKakao()" class="share-option-btn kakao" title="카카오톡으로 공유"><img src="kakaotalk.png" alt="KakaoTalk"></a>
+                    <a href="javascript:shareToX()" class="share-option-btn x" title="X로 공유"><img src="x.png" alt="X"></a>                </div>
+                <a href="#" id="share-toggle-button" role="button" aria-label="공유하기">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 0 24 24" width="26px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg>
+                </a>
+            </div>
+        </div>
+
+        
+    <div id="completion-popup-overlay" class="popup-overlay">
+        <div class="popup">
+            <h2>🎉 축하합니다! 🎉</h2>
+            <p>모든 정답을 맞추셨습니다!<br>이벤트 참여를 위해 이메일을 제출해 주세요.</p>
+            <form id="google-form-proxy">
+                <input type="email" id="email-input" placeholder="이메일 주소를 입력하세요" required>
+                <button type="submit">제출하고 완료하기</button>
+            </form>
+    
+            <div class="popup-share-section">
+                <p class="share-prompt">친구들에게 희곡지왕 등극을 알려 보세요!</p>
+                <div id="popup-share-buttons">
+                    <a href="javascript:shareToKakao()" class="popup-share-btn kakao">
+                        <img src="kakaotalk.png" alt="KakaoTalk">
+                        <span>카톡으로 알리기</span>
+                    </a>
+                    <a href="javascript:shareToX()" class="popup-share-btn x">
+                        <img src="x.png" alt="X">
+                        <span>X로 알리기</span>
+                    </a>
+                </div>
+            </div>
+            <button id="close-popup">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        // 자바스크립트 코드는 변경하지 않았습니다.
+        const gridData = [
+            [1, 1, 1, 0, 0, 0, 1, 0, 0, 0], [0, 0, 1, 0, 0, 0, 1, 0, 1, 1], [1, 1, 1, 1, 1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 0, 0, 1, 0, 0, 1], [0, 0, 1, 0, 0, 1, 0, 0, 0, 1], [1, 1, 1, 1, 0, 1, 1, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 1, 0], [0, 0, 1, 0, 1, 1, 1, 1, 1, 0], [0, 0, 1, 0, 0, 0, 0, 0, 1, 0], [1, 1, 1, 0, 1, 1, 1, 0, 1, 0]
+        ];
+        const circledNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];  
+        const encodedAnswers = "eyLqsIDroZwiOnsiMCwwIjp7Im51bWJlciI6MSwic3RhcnRSIjowLCJzdGFydEMiOjAsImFuc3dlciI6Iuy6lOuUlOuLpCIsImhpbnQiOiLikaAg7KGw7KeAIOuyhOuCmOuTnCDsh7zsnZgg7Z2s6rOhLCDigJjsnbTqsoMg66eI64uI7JWE4oCZ652864qUIOyLoOyhsOyWtOulvCDrgrPsnYAg7Z2l7ZaJ7J6RLiDsp4Drp4zsp4Drk5zrnbzrp4gg7LK07ZeYIDHtmLgg64+E7IScLiBb7IOd66y8XSDsp4Tqt6DrpZjsnZgg7ZWcIOyGjS4g7IKs7IOB6reg6rO8IO2aqOuqqOydmCDspJHqsIQg7ZiV7YOc66GcLCDsi53rrLzshLEg7Y+Q66y8LCDslpHsobAg7KCc7ZKIIOuUsOychOyXkCDshJ7sl6wg64+E7LKY7JeQ7IScIOyekOuegOuLpC4iLCJzb2x2ZWQiOmZhbHNlfSwiMiwwIjp7Im51bWJlciI6Miwic3RhcnRSIjoyLCJzdGFydEMiOjAsImFuc3dlciI6IuuLue2GteydmOyjveydjCIsImhpbnQiOiLikaEg67eU7Z6I64SI7J2YIO2drOqzoSwg7ZSE656R7IqkIO2YgeuqheqwgOydtOyekCDsoJXsuZjqsIDsnbgg4oCY64u57Ya14oCZ7J2YIOy1nO2bhOulvCDqt7jroLjri6QuIDIwMTnrhYQg6rWt66a96re564uoIOuwseyEse2drOyepeuvvO2YuCDqt7nsnqXsl5DshJwg6rO17Jew65CY7JeI64ukLiIsInNvbHZlZCI6ZmFsc2V9LCI1LDAiOnsibnVtYmVyIjozLCJzdGFydFIiOjUsInN0YXJ0QyI6MCwiYW5zd2VyIjoi66mU642w7J207JWEIiwiaGludCI6IuKRoiDsl5DsmrDrpqztlLzrjbDsiqTsnZgg7Z2s6rOhLCDrk5zrnbzrp4gg4oCY67aA67aA7J2YIOyEuOqzhOKAmeydmCDsm5DsnpEg4oCY64ul7YSwIO2PrOyKpO2EsOKAmeuKlCDsnbQg7Z2s6rOh7J2EIOuqqO2LsO2UhOuhnCDtlojri6QuIOy9nO2CpOyKpOydmCDsmZXrhYDroZwg66eI67KV7J2EIOyNqOyEnCDsnbTslYTshpDsnbQg7Zmp6riI7JaR7YS47J2EIOyGkOyXkCDrhKPsnYQg7IiYIOyeiOqyjCDrj4TsmZTri6QuIiwic29sdmVkIjpmYWxzZX0sIjksMCI6eyJudW1iZXIiOjQsInN0YXJ0UiI6OSwic3RhcnRDIjowLCJhbnN3ZXIiOiLqsIjrp6TquLAiLCJoaW50Ijoi4pGjIOyytO2YuO2UhOydmCA064yAIO2drOqzoSDspJEg7ZWY64KYLCDrsJTri7fqsIDsl5DshJwg7Z2U7Z6IIOuzvCDsiJgg7J6I64qUIOyDiOuLpC4g4oCY7IOI7Jqw6rmh4oCZ7J2EIOyii+yVhO2VnOuLpC4iLCJzb2x2ZWQiOmZhbHNlfSwiNyw0Ijp7Im51bWJlciI6NSwic3RhcnRSIjo3LCJzdGFydEMiOjQsImFuc3dlciI6IuustOq4sOyZgOyduOqwhCIsImhpbnQiOiLikaQg7KGw7KeAIOuyhOuCmOuTnCDsh7zsnZgg7Z2s6rOhLCDsoITsn4Eg7JiB7JuFIOyIreuwsCwg6rWw7J24IOyYiOywrOydhCDtko3snpDtlojri6QuIOybkOygnOuKlCDigJhBcm1zIGFuZCB0aGUgTWFu4oCZLiIsInNvbHZlZCI6ZmFsc2V9LCI5LDQiOnsibnVtYmVyIjo2LCJzdGFydFIiOjksInN0YXJ0QyI6NCwiYW5zd2VyIjoi67mE7Y+J6rCAIiwiaGludCI6IuKRpSDtj4nroaDsnYQg7KCE66y47Jy866GcIO2VmOuKlCDsgqzrnowuIO2bhOyViCDrp4jsmpTrpbTqsIDsnZgg7Z2s6rOhLiDrsLHtmITso7wsIOq5gOyLoOuhnSDrsLDsmrDqsIAg7Lac7Jew7ZWcIDIwMTnrhYQg6rO17Jew7J2AIOygoOuNlCDtlITrpqwg7LqQ7Iqk7YyF7Jy866GcIO2ZlOygnOqwgCDrkJjsl4jri6QuIiwic29sdmVkIjpmYWxzZX0sIjUsNSI6eyJudW1iZXIiOjcsInN0YXJ0UiI6NSwic3RhcnRDIjo1LCJhbnN3ZXIiOiLsi5zrnbzrhbgiLCJoaW50Ijoi4pGmIO2UhOuekeyKpOydmCDsi5zsnbjsnbTsnpAg7IaM7ISk6rCALiDqs7ztlZnshozshKTsnZgg7ISg6rWs7J6Q66GcIOuMgO2RnOyekeydgCA87JuU7IS46rOEIOyXrO2Wieq4sD4uIOyXkOuTnOuqvSDroZzsiqTtg5XsnbQg6re466W8IOyjvOyduOqzteycvOuhnCDsk7Qg7Z2s6rOh7J20IOyeiOuLpC4g666k7KeA7LusLCDsmIHtmZQg7KCc66qp7Jy866Gc64+EIOycoOuqhe2VmOuLpC4iLCJzb2x2ZWQiOmZhbHNlfSwiMiw2Ijp7Im51bWJlciI6OCwic3RhcnRSIjoyLCJzdGFydEMiOjYsImFuc3dlciI6Iu2ZlOyXvCIsImhpbnQiOiLikacg7Jew6re5IDzqt7jsnYTrprAg7IKs656RPuydmCDsm5DsnpEg7Z2s6rOhLiDsgqzsoIQg7KCV7J2Y64qUIOKAnO2DgOuKlCDrtojsl5DshJwg7J287Ja064KY64qUIOu2ieydgOu5m+ydmCDquLDsmrTigJ0uIiwic29sdmVkIjpmYWxzZX0sIjEsOCI6eyJudW1iZXIiOjksInN0YXJ0UiI6MSwic3RhcnRDIjo4LCJhbnN3ZXIiOiLtkZzsoIEiLCJoaW50Ijoi4pGoIOuqqe2RnOuhnCDsgrzripQg66y86rG07J2064KYIO2RnOyngOuhnCDsgrzripQg7ZGcLiDqsonsnLzroZwg65Oc65+s64KcIOyekOy3qC4g4oCY67O065Oc67mM7J2YIO2ZqeygnOKAmSDsmbjsoKAg652867mE7IqI7J2YIO2SjeyGjSDtnazqs6Eg7KCc66qp7J2064ukLiIsInNvbHZlZCI6ZmFsc2V9fSwi7IS466GcIjp7IjAsMiI6eyJudW1iZXIiOjEsInN0YXJ0UiI6MCwic3RhcnRDIjoyLCJhbnN3ZXIiOiLri6TsnIjsnZjqsbDrtoHsnbQiLCJoaW50Ijoi4pGgKOyEuCkg7ZuE7JWIIOuniOyalOultOqwgOydmCDtnazqs6EuIOynhO2ZlOuhoOyekCDssLDsiqQg64uk7JyI7J20IOqwiOudvO2MjOqzoOyKpOyErOyXkOyEnCDrjbDroKTri6Qg7YKk7Jq0IOqxsOu2geydtOqwgCAyMDDrhYQg7Jet7IKs66W8IOymneyWuO2VnOuLpOuKlCDshKTsoJXsnbTri6QuIiwic29sdmVkIjpmYWxzZX0sIjcsMiI6eyJudW1iZXIiOjIsInN0YXJ0UiI6Nywic3RhcnRDIjoyLCJhbnN3ZXIiOiLtmozrnoDquLAiLCJoaW50Ijoi4pGhKOyEuCkg7KSR6rWtIOybkOuCmOudvCDsnbTtlonrs7TsnZgg7Z2s6rOhLiDruIzroIjtnojtirjsnZggPOy9lOy5tOyEnOyKpOydmCDrsLHrrLXsm5A+7J2AIOydtCDsnpHtkojsnYQg6rCB7IOJ7ZWcIOqygy4g7ZWcIOyVhOydtOulvCDrhpPqs6Ag7ISc66GcIOyekOq4sCDsnpDsi53snbTrnbzqs6Ag7KO87J6l7ZWY64qUIOuRkCDsl6zsnbjsnZgg6rCI65Ox7J2EIO2MkOq0gCDtj6zssq3sspzsnbQg7ZW06rKw7ZWc64ukLiIsInNvbHZlZCI6ZmFsc2V9LCI0LDUiOnsibnVtYmVyIjozLCJzdGFydFIiOjQsInN0YXJ0QyI6NSwiYW5zd2VyIjoi64uk7Iuc65286riwIiwiaGludCI6IuKRoijshLgpIO2XiOq3nOydmCDtnazqs6EuIOynhOuPhOydmCDsnqXroYAg7ZKN7IaN7J24IOKAmOuLpOyLnOuemOq4sOKAmeulvCDqt7ntmZTtlZwg6rKD7Jy866GcIOyghO2GteydhCDtmZzsmqntlZwg66y064yAIOyXsOy2nOydtCDrj4vrs7TsnbTripQg7J6R7ZKI7J2064ukLiIsInNvbHZlZCI6ZmFsc2V9LCIwLDYiOnsibnVtYmVyIjo0LCJzdGFydFIiOjAsInN0YXJ0QyI6NiwiYW5zd2VyIjoi7ZKN7J6Q7ZmU7KCEIiwiaGludCI6IuKRoyjshLgpIOydvOuzuCDsoITthrXqt7kg64W47J2YIOuMgOyEseyekCDsoJzslYTrr7jqsIAg7JO0IOy1nOy0iOydmCDrhbgg7J2066Gg7ISc64ukLiDsoJzslYTrr7gg6rCA66y47J2YIOu5hOq4sOuhnOunjCDsoITtlbTsp4DrjZgg6rKD7J20IO2YhOuMgOyXkCDrk6TslrQg6rO16rCc65CY7JeI64ukLiDsl7DquLDsnZgg6r2D7J2EIO2UvOyasOq4sCDsnITtlZwg67mE6rKwLCDtj4nsg53sl5Ag6rG47LmcIOyImOugqCwg7IiY7JaR7J2YIOuwqeuyleydhCDsnbzrn6wg7KSA64ukLiIsInNvbHZlZCI6ZmFsc2V9LCI2LDgiOnsibnVtYmVyIjo1LCJzdGFydFIiOjYsInN0YXJ0QyI6OCwiYW5zd2VyIjoi7J246rCE7J2Y7IK2IiwiaGludCI6IuKRpCjshLgpIOugiOyYpOuLiO2KuCDslYjrk5zroIjsmIjtlITsnZgg7IaM7ISkIO2YleyLneydmCDtnazqs6EuIOyViOuTnOugiOyYiO2UhOuKlCDsnbQg7J6R7ZKI7J2EIO2Gte2VtCDsgrbsnZgg7J2Y66+46rCAIOustOyXh+yduOyngCDrgYrsnoTsl4bsnbQg7KeI66y47ZWc64ukLiIsInNvbHZlZCI6ZmFsc2V9LCIxLDkiOnsibnVtYmVyIjo2LCJzdGFydFIiOjEsInN0YXJ0QyI6OSwiYW5zd2VyIjoi7KCB7J6Q7IOJ7ISsIiwiaGludCI6IuKRpSjshLgpIOuvuO2VmOydvCDrtojqsIDsvZTtlITsnZgg7Z2s6rOhLiDqsoDsl7TroZwg7J247ZWcIOywveyekSDtmZzrj5nsnZgg7KCc7JW97J2EIOq3ueykkeq3uSDtmJXsi53snLzroZwg7ZKN7J6Q7ZaI64ukLiIsInNvbHZlZCI6ZmFsc2V9fX0=";
+        const answers = JSON.parse(decodeURIComponent(escape(atob(encodedAnswers))));
+        const gridContainer = document.getElementById('crossword-grid');
+        const hintText = document.getElementById('hint-text');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit-answer');
+        const popupOverlay = document.getElementById('completion-popup-overlay');
+        const closePopupButton = document.getElementById('close-popup');
+        const googleForm = document.getElementById('google-form-proxy');
+        const emailInput = document.getElementById('email-input');
+
+        let selectedCell = null;
+        let currentWordHints = [];
+        const totalWords = Object.keys(answers.가로).length + Object.keys(answers.세로).length;
+        
+        // 이하 스크립트는 이전과 동일합니다.
+        function createGrid() {
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell');
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    if (gridData[r][c] === 1) {
+                        cell.classList.add('active');
+                        cell.addEventListener('click', () => selectCell(r, c));
+                        let hasHorizontal = false;
+                        for (const key in answers.가로) {
+                            const word = answers.가로[key];
+                            if (word.startR === r && word.startC === c) {
+                                const numSpan = document.createElement('span');
+                                numSpan.classList.add('cell-number');
+                                numSpan.textContent = circledNumbers[word.number - 1];
+                                cell.appendChild(numSpan);
+                                hasHorizontal = true;
+                                break;
+                            }
+                        }
+                        for (const key in answers.세로) {
+                            const word = answers.세로[key];
+                            if (word.startR === r && word.startC === c) {
+                                const numSpan = document.createElement('span');
+                                numSpan.classList.add('cell-number');
+                                numSpan.textContent = circledNumbers[word.number - 1];
+                                if (hasHorizontal) {
+                                    numSpan.style.left = '18px';
+                                }
+                                cell.appendChild(numSpan);
+                                break;
+                            }
+                        }
+                    }
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+        function selectCell(r, c) {
+            if (selectedCell) {
+                const prevEl = gridContainer.querySelector(`.grid-cell.selected`);
+                if(prevEl) prevEl.classList.remove('selected');
+            }
+            const currentCell = gridContainer.querySelector(`.grid-cell[data-row="${r}"][data-col="${c}"]`);
+            if (currentCell && currentCell.classList.contains('active')) {
+                const isFilled = Array.from(currentCell.classList).some(cls => cls.startsWith('filled-'));
+                if (!isFilled) {
+                        currentCell.classList.add('selected');
+                        selectedCell = { r, c };
+                        displayHint(r, c);
+                        answerInput.focus();
+                } else {
+                    displayHint(r, c);
+                }
+            } else {
+                selectedCell = null;
+                hintText.innerHTML = "칸을 클릭하여 힌트를 확인하세요.";
+            }
+        }
+        function displayHint(r, c) {
+            currentWordHints = [];
+            let hintsHtml = [];
+            Object.values(answers.가로).forEach(word => {
+                if (word.startR === r && c >= word.startC && c < word.startC + word.answer.length) {
+                    currentWordHints.push({ ...word, type: "가로" });
+                    if (!word.solved) hintsHtml.push(word.hint);
+                }
+            });
+            Object.values(answers.세로).forEach(word => {
+                if (word.startC === c && r >= word.startR && r < word.startR + word.answer.length) {
+                    currentWordHints.push({ ...word, type: "세로" });
+                    if (!word.solved) hintsHtml.push(word.hint);
+                }
+            });
+            if (hintsHtml.length > 0) {
+                hintText.innerHTML = hintsHtml.join('<br><br>');
+            } else if (currentWordHints.length > 0) {
+                hintText.textContent = "이미 정답을 맞춘 칸입니다.";
+            } else {
+                hintText.textContent = "이 칸은 단어의 일부가 아닙니다.";
+            }
+        }
+        function submitAnswer() {
+            if (!selectedCell) {
+                alert("먼저 정답을 입력할 칸을 선택하세요.");
+                return;
+            }
+            const userAnswer = answerInput.value.trim().replace(/\s/g, '').toUpperCase();
+            if (!userAnswer) return;
+            let isCorrect = false;
+            for (const wordInfo of currentWordHints) {
+                if (!wordInfo.solved && userAnswer === wordInfo.answer.toUpperCase()) {
+                    isCorrect = true;
+                    const originalWordKey = `${wordInfo.startR},${wordInfo.startC}`;
+                    const originalWordObject = answers[wordInfo.type][originalWordKey];
+                    if(originalWordObject) {
+                        originalWordObject.solved = true;
+                    }
+                    fillAnswerOnGrid(wordInfo);
+                }
+            }
+            if (isCorrect) {
+                const solvedCount = Object.values(answers.가로).filter(w => w.solved).length + 
+                                     Object.values(answers.세로).filter(w => w.solved).length;
+                if (solvedCount === totalWords) {
+                    handleGameCompletion();
+                }
+            } else {
+                alert("오답입니다. 다시 시도해보세요.");
+            }
+            answerInput.value = '';
+            if (selectedCell) {
+                const prevEl = gridContainer.querySelector(`.grid-cell.selected`);
+                if (prevEl) prevEl.classList.remove('selected');
+                selectedCell = null;
+            }
+            hintText.innerHTML = "칸을 클릭하여 힌트를 확인하세요.";
+        }
+        function fillAnswerOnGrid(wordInfo) {
+            const { startR, startC, answer, type } = wordInfo;
+            const answerChars = answer.split('');
+            if (type === "가로") {
+                for (let i = 0; i < answerChars.length; i++) {
+                    const cell = gridContainer.querySelector(`.grid-cell[data-row="${startR}"][data-col="${startC + i}"]`);
+                    if (cell) {
+                        cell.textContent = answerChars[i];
+                        cell.classList.add('filled');
+                        const numSpans = cell.querySelectorAll('.cell-number');
+                        numSpans.forEach(span => span.style.display = 'none');
+                    }
+                }
+            } else if (type === "세로") {
+                for (let i = 0; i < answerChars.length; i++) {
+                    const cell = gridContainer.querySelector(`.grid-cell[data-row="${startR + i}"][data-col="${startC}"]`);
+                    if (cell) {
+                        cell.textContent = answerChars[i];
+                        cell.classList.add('filled');
+                        const numSpans = cell.querySelectorAll('.cell-number');
+                        numSpans.forEach(span => span.style.display = 'none');
+                    }
+                }
+            }
+        }
+        function handleGameCompletion() {
+            const duration = 3 * 1000;
+            const end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff69b4', '#fff0f5', '#c71585'] });
+                confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff69b4', '#fff0f5', '#c71585'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+            setTimeout(() => { popupOverlay.classList.add('visible'); }, 1000);
+        }
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const email = emailInput.value;
+            if (!email) {
+                alert('이메일을 입력해주세요.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('entry.1761557489', email); // 실제 필드 ID로 변경 필요
+            fetch('https://docs.google.com/forms/d/e/1FAIpQLSc8HijHiUmX5wzeLZzjh32wyZrotG7brjDBUGaVKzvePbiLxA/formResponse', { // 실제 액션 URL로 변경 필요
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                alert('이메일이 성공적으로 제출되었습니다. 감사합니다!');
+                popupOverlay.classList.remove('visible');
+                emailInput.value = '';
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('제출 중 오류가 발생했습니다.');
+            });
+        }
+        submitButton.addEventListener('click', submitAnswer);
+        answerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAnswer(); });
+        closePopupButton.addEventListener('click', () => { popupOverlay.classList.remove('visible'); });
+        popupOverlay.addEventListener('click', (e) => { if (e.target === popupOverlay) popupOverlay.classList.remove('visible'); });
+        googleForm.addEventListener('submit', handleFormSubmit);
+        createGrid();
+
+
+        const shareToggleButton = document.getElementById('share-toggle-button');
+        const shareOptions = document.getElementById('share-options');
+
+        // 공유 버튼 클릭 시 아이콘들 표시/숨김
+        shareToggleButton.addEventListener('click', (e) => { // (e) 추가
+            e.preventDefault(); // 페이지 이동을 막는 코드 추가
+            shareOptions.classList.toggle('visible');
+        });
+        // 4. 카카오톡 공유 기능
+        function shareToKakao() {
+            if (Kakao.isInitialized()) {
+                Kakao.Link.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '지만지드라마 십자말풀이',
+                        description: '희곡지왕(戱曲之王)에 도전해 보세요!',
+                        // 공유 시 보일 썸네일 이미지 경로
+                        imageUrl: 'https://zmanzdrama.netlify.app/crossword/crossword_thumb.jpg',
+                        link: {
+                            mobileWebUrl: window.location.href,
+                            webUrl: window.location.href,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '십자말풀이 하러 가기',
+                            link: {
+                                mobileWebUrl: window.location.href,
+                                webUrl: window.location.href,
+                            },
+                        },
+                    ],
+                });
+            } else {
+                alert("카카오 SDK가 초기화되지 않았습니다. 관리자에게 문의하세요.");
+            }
+        }
+
+        // 5. X(트위터) 공유 기능
+        function shareToX() {
+            const shareText = "지만지드라마 십자말풀이, 희곡지왕(戱曲之王)에 도전해 보세요!";
+            const shareUrl = window.location.href;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+            window.open(twitterUrl, "_blank");
+        }
+
+        document.addEventListener('click', function(event) {
+            if (
+                shareOptions.classList.contains('visible') &&
+                !shareToggleButton.contains(event.target) &&
+                !shareOptions.contains(event.target)
+            ) {
+                shareOptions.classList.remove('visible'); // 'visible' 클래스를 제거하여 메뉴를 닫는다.
+            }
+        });
+
+    </script>
+</body>
+</html>
