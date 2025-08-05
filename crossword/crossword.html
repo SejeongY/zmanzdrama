@@ -10,9 +10,19 @@
     <meta property="og:url" content="https://zmanzdrama.netlify.app/crossword/crossword.html">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RK144LB827"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-RK144LB827');
+    </script>
     <script>
         Kakao.init('ebe32603af5a77385396832db327f040'); // 여기에 본인의 카카오 자바스크립트 키를 입력하세요
     </script>
+
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
     
@@ -503,9 +513,9 @@
         </div>
         <div id="footer-actions">
             <div id="social-links">
-                <a href="https://www.instagram.com/zmanzdrama/" target="_blank" title="지만지드라마 인스타그램"><img src="ig.png" alt="Instagram"></a>
-                <a href="https://x.com/jimanjideulama" target="_blank" title="지만지드라마 X"><img src="x.png" alt="X"></a>
-                <a href="https://zmanzdrama.com/" target="_blank" title="지만지드라마 홈페이지"><img src="home.png" alt="Homepage"></a>
+                <a href="https://www.instagram.com/zmanzdrama/" onclick="trackSocialClick('Instagram')" target="_blank" title="지만지드라마 인스타그램"><img src="ig.png" alt="Instagram"></a>
+                <a href="https://x.com/jimanjideulama" onclick="trackSocialClick('X')" target="_blank" title="지만지드라마 X"><img src="x.png" alt="X"></a>
+                <a href="https://zmanzdrama.com/" onclick="trackSocialClick('Homepage')" target="_blank" title="지만지드라마 홈페이지"><img src="home.png" alt="Homepage"></a>
             </div>
         
             <div class="separator"></div>
@@ -715,6 +725,7 @@
             }
         }
         function handleGameCompletion() {
+            gtag('event', 'puzzle_completed'); // <-- 이 줄을 추가하세요
             const duration = 3 * 1000;
             const end = Date.now() + duration;
             (function frame() {
@@ -754,6 +765,12 @@
         googleForm.addEventListener('submit', handleFormSubmit);
         createGrid();
 
+        function trackSocialClick(platform) {
+            gtag('event', 'social_link_click', {
+                'social_platform': platform
+            });
+        }
+
 
         const shareToggleButton = document.getElementById('share-toggle-button');
         const shareOptions = document.getElementById('share-options');
@@ -765,6 +782,7 @@
         });
         // 4. 카카오톡 공유 기능
         function shareToKakao() {
+            gtag('event', 'share_kakao'); // <-- 이 줄을 추가하세요
             if (Kakao.isInitialized()) {
                 Kakao.Link.sendDefault({
                     objectType: 'feed',
@@ -772,7 +790,7 @@
                         title: '지만지드라마 십자말풀이',
                         description: '희곡지왕(戱曲之王)에 도전해 보세요!',
                         // 공유 시 보일 썸네일 이미지 경로
-                        imageUrl: 'https://zmanzdrama.netlify.app/crossword/crossword_thumb.jpg',
+                        imageUrl: 'https://zmanzdrama.netlify.app/crossword/crossword_k_thumb.jpg',
                         link: {
                             mobileWebUrl: window.location.href,
                             webUrl: window.location.href,
@@ -795,6 +813,7 @@
 
         // 5. X(트위터) 공유 기능
         function shareToX() {
+            gtag('event', 'share_x'); // <-- 이 줄을 추가하세요
             const shareText = "지만지드라마 십자말풀이, 희곡지왕(戱曲之王)에 도전해 보세요!";
             const shareUrl = window.location.href;
             const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
