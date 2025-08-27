@@ -63,7 +63,10 @@
     <div class="w-full max-w-3xl mx-auto p-2 sm:p-4">
         <header class="flex justify-between items-center mb-4 px-1">
             <h1 class="text-2xl sm:text-3xl font-bold header-text">지원서 목록</h1>
-            <select id="applicant-dropdown" class="dropdown border-2 rounded-lg p-2 bg-white"></select>
+            <div class="flex items-center space-x-2">
+                <select id="activity-filter" class="dropdown border-2 rounded-lg p-2 bg-white text-sm sm:text-base"></select>
+                <select id="applicant-dropdown" class="dropdown border-2 rounded-lg p-2 bg-white text-sm sm:text-base"></select>
+            </div>
         </header>
 
         <main id="slider-container" class="slider-container cursor-grab active:cursor-grabbing">
@@ -363,48 +366,105 @@ https://m.blog.naver.com/asty930"
 `
 ;
 
-        let applicants = [];
-        let currentIndex = 0;
-        let isDragging = false;
-        let startPos = 0;
-        let currentTranslate = 0;
-        let prevTranslate = 0;
-        let animationID;
+// --- 전역 변수 ---
+let allApplicants = [];
+let currentApplicants = [];
+let currentIndex = 0;
+let isDragging = false, startPos = 0, currentTranslate = 0, prevTranslate = 0, animationID;
 
-        const sliderContainer = document.getElementById('slider-container');
-        const sliderTrack = document.getElementById('slider-track');
-        const dropdown = document.getElementById('applicant-dropdown');
-        const dotsContainer = document.getElementById('dots-container');
+// --- DOM 요소 ---
+const sliderContainer = document.getElementById('slider-container');
+const sliderTrack = document.getElementById('slider-track');
+const activityFilter = document.getElementById('activity-filter');
+const applicantDropdown = document.getElementById('applicant-dropdown');
+const dotsContainer = document.getElementById('dots-container');
 
-        function initialize() {
-            Papa.parse(csvData, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    applicants = results.data;
-                    if (applicants.length > 0) {
-                        createSlides();
-                        populateDropdown();
-                        createDots();
-                        updateUI();
-                        addEventListeners();
-                    }
-                }
+// --- 함수 ---
+
+/**
+ * 애플리케이션 초기화
+ */
+function initialize() {
+    Papa.parse(csvData, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            allApplicants = results.data.filter(applicant => applicant.이름 && applicant.이름.trim() !== ''); // 이름이 있는 데이터만 필터링
+            if (allApplicants.length > 0) {
+                populateActivityFilter();
+                addEventListeners();
+                filterAndRender(); // 초기 렌더링
+            }
+        }
+    });
+}
+
+/**
+ * 활동별 필터 드롭다운 채우기
+ */
+function populateActivityFilter() {
+    const activityKey = "지만지드라마 브랜드 체험전에서 참여하고 싶은 활동";
+    const activities = new Set();
+    allApplicants.forEach(applicant => {
+        if (applicant[activityKey]) {
+            applicant[activityKey].split(',').forEach(activity => {
+                activities.add(activity.trim());
             });
         }
+    });
 
-        function createSlides() {
-            let slidesHTML = '';
-            applicants.forEach(applicant => {
-                slidesHTML += `<div class="slide"><div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">${createCardContent(applicant)}</div></div>`;
-            });
-            sliderTrack.innerHTML = slidesHTML;
-        }
-        
-        function createCardContent(applicant) {
-    const columnsToExclude = ['타임스탬프', '개인정보 수집 및 이용 동의', '생년월일', '연락처', '메일 주소', '이름'];
+    activityFilter.innerHTML = '<option value="전체">전체 활동</option>';
+    activities.forEach(activity => {
+        const option = document.createElement('option');
+        option.value = activity;
+        option.textContent = activity;
+        activityFilter.appendChild(option);
+    });
+}
+
+/**
+ * 선택된 필터에 따라 지원자를 필터링하고 화면을 다시 렌더링
+ */
+function filterAndRender() {
+    const selectedActivity = activityFilter.value;
+    const activityKey = "지만지드라마 브랜드 체험전에서 참여하고 싶은 활동";
+
+    if (selectedActivity === '전체') {
+        currentApplicants = allApplicants;
+    } else {
+        currentApplicants = allApplicants.filter(applicant => 
+            applicant[activityKey] && applicant[activityKey].includes(selectedActivity)
+        );
+    }
     
-    // 이름과 생년월일을 함께 묶어서 표시합니다.
+    currentIndex = 0;
+    renderSliderContent();
+}
+
+/**
+ * 필터링된 데이터를 기반으로 슬라이더의 모든 컨텐츠(카드, 드롭다운, 점)를 생성
+ */
+function renderSliderContent() {
+    createSlides();
+    populateApplicantDropdown();
+    createDots();
+    updateUI();
+}
+
+/**
+ * 지원자 카드를 생성
+ */
+function createSlides() {
+    sliderTrack.innerHTML = currentApplicants.map(applicant => 
+        `<div class="slide"><div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">${createCardContent(applicant)}</div></div>`
+    ).join('');
+}
+
+/**
+ * 카드 내용(HTML) 생성
+ */
+function createCardContent(applicant) {
+    const columnsToExclude = ['타임스탬프', '개인정보 수집 및 이용 동의', '생년월일', '연락처', '메일 주소', '이름'];
     let contentHTML = `
         <div class="text-center mb-6">
             <h2 class="text-3xl font-bold header-text">${applicant['이름']}</h2>
@@ -427,120 +487,137 @@ https://m.blog.naver.com/asty930"
     });
     contentHTML += `</dl>`;
     return contentHTML;
-}        function populateDropdown() {
-            dropdown.innerHTML = '';
-            applicants.forEach((applicant, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${index + 1}. ${applicant['이름']}`;
-                dropdown.appendChild(option);
-            });
-        }
+}
 
-        function createDots() {
-            dotsContainer.innerHTML = '';
-            applicants.forEach((_, index) => {
-                const dot = document.createElement('button');
-                dot.classList.add('dot');
-                dot.addEventListener('click', () => {
-                    currentIndex = index;
-                    updateUI();
-                });
-                dotsContainer.appendChild(dot);
-            });
-        }
-        
-        function updateUI() {
-    // 3. 슬라이드 시 화면을 부드럽게 최상단으로 이동
-    window.scrollTo({ top: 0});
+/**
+ * 지원자 이름 드롭다운 채우기
+ */
+function populateApplicantDropdown() {
+    applicantDropdown.innerHTML = '';
+    currentApplicants.forEach((applicant, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${index + 1}. ${applicant['이름']}`;
+        applicantDropdown.appendChild(option);
+    });
+}
+
+/**
+ * 하단 페이지 표시 점 생성
+ */
+function createDots() {
+    dotsContainer.innerHTML = '';
+    currentApplicants.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.classList.add('dot');
+        dot.addEventListener('click', () => {
+            currentIndex = index;
+            updateUI();
+        });
+        dotsContainer.appendChild(dot);
+    });
+}
+
+/**
+ * UI 업데이트 (슬라이드 위치, 드롭다운 선택, 점 활성화 등)
+ */
+function updateUI() {
+    window.scrollTo(0, 0);
 
     const offset = -currentIndex * sliderContainer.offsetWidth;
     sliderTrack.style.transform = `translateX(${offset}px)`;
     
-    // 2. 현재 카드의 높이를 계산해 페이지 전체 높이에 반영
-    // setTimeout을 사용해 카드가 그려진 후 높이를 계산하도록 합니다.
     setTimeout(() => {
         const currentSlide = sliderTrack.children[currentIndex];
         if (currentSlide) {
             const cardHeight = currentSlide.querySelector('.bg-white').offsetHeight;
             sliderContainer.style.height = `${cardHeight}px`;
+        } else if (currentApplicants.length === 0) {
+            sliderContainer.style.height = '200px'; // 지원자가 없을 때 기본 높이
         }
     }, 50);
 
-    if (dropdown.options.length > 0) {
-        dropdown.value = currentIndex;
+    if (applicantDropdown.options.length > 0) {
+        applicantDropdown.value = currentIndex;
     }
     
     document.querySelectorAll('.dot').forEach((dot, index) => {
         dot.classList.toggle('active', index === currentIndex);
     });
 }
-        function addEventListeners() {
-            dropdown.addEventListener('change', (e) => {
-                currentIndex = parseInt(e.target.value);
-                updateUI();
-            });
-            
-            sliderContainer.addEventListener('mousedown', touchStart);
-            sliderContainer.addEventListener('touchstart', touchStart, { passive: true });
 
-            sliderContainer.addEventListener('mouseup', touchEnd);
-            sliderContainer.addEventListener('mouseleave', touchEnd);
-            sliderContainer.addEventListener('touchend', touchEnd);
+/**
+ * 모든 이벤트 리스너 등록
+ */
+function addEventListeners() {
+    activityFilter.addEventListener('change', filterAndRender);
+    applicantDropdown.addEventListener('change', (e) => {
+        currentIndex = parseInt(e.target.value);
+        updateUI();
+    });
+    
+    sliderContainer.addEventListener('mousedown', touchStart);
+    sliderContainer.addEventListener('touchstart', touchStart, { passive: true });
+    sliderContainer.addEventListener('mouseup', touchEnd);
+    sliderContainer.addEventListener('mouseleave', touchEnd);
+    sliderContainer.addEventListener('touchend', touchEnd);
+    sliderContainer.addEventListener('mousemove', touchMove);
+    sliderContainer.addEventListener('touchmove', touchMove, { passive: true });
+    
+    window.addEventListener('resize', updateUI);
+}
 
-            sliderContainer.addEventListener('mousemove', touchMove);
-            sliderContainer.addEventListener('touchmove', touchMove, { passive: true });
-            
-            window.addEventListener('resize', updateUI);
-        }
+// --- 스와이프 관련 함수들 ---
+function touchStart(event) {
+    if (event.target.tagName === 'SELECT' || currentApplicants.length <= 1) return;
+    isDragging = true;
+    startPos = getPositionX(event);
+    animationID = requestAnimationFrame(animation);
+    sliderTrack.style.transition = 'none';
+}
 
-        function touchStart(event) {
-            isDragging = true;
-            startPos = getPositionX(event);
-            animationID = requestAnimationFrame(animation);
-            sliderTrack.style.transition = 'none';
-        }
+function touchMove(event) {
+    if (isDragging) {
+        const currentPosition = getPositionX(event);
+        currentTranslate = prevTranslate + currentPosition - startPos;
+    }
+}
 
-        function touchMove(event) {
-            if (isDragging) {
-                const currentPosition = getPositionX(event);
-                currentTranslate = prevTranslate + currentPosition - startPos;
-            }
-        }
+function touchEnd() {
+    if (!isDragging) return;
+    cancelAnimationFrame(animationID);
+    isDragging = false;
+    const movedBy = currentTranslate - prevTranslate;
 
-        function touchEnd() {
-            cancelAnimationFrame(animationID);
-            isDragging = false;
-            const movedBy = currentTranslate - prevTranslate;
+    if (movedBy < -100 && currentIndex < currentApplicants.length - 1) {
+        currentIndex += 1;
+    }
+    if (movedBy > 100 && currentIndex > 0) {
+        currentIndex -= 1;
+    }
 
-            if (movedBy < -100 && currentIndex < applicants.length - 1) {
-                currentIndex += 1;
-            }
+    sliderTrack.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+    prevTranslate = -currentIndex * sliderContainer.offsetWidth;
+    currentTranslate = prevTranslate;
+    updateUI();
+}
 
-            if (movedBy > 100 && currentIndex > 0) {
-                currentIndex -= 1;
-            }
+function getPositionX(event) {
+    return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+}
 
-            sliderTrack.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-            prevTranslate = -currentIndex * sliderContainer.offsetWidth;
-            currentTranslate = prevTranslate;
-            updateUI();
-        }
+function animation() {
+    setSliderPosition();
+    if (isDragging) requestAnimationFrame(animation);
+}
 
-        function getPositionX(event) {
-            return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
-        }
+function setSliderPosition() {
+    sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+}
 
-        function animation() {
-            setSliderPosition();
-            if (isDragging) requestAnimationFrame(animation);
-        }
+// --- 애플리케이션 시작 ---
+document.addEventListener('DOMContentLoaded', initialize);
 
-        function setSliderPosition() {
-            sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
-        }
-
-        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
