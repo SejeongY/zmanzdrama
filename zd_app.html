@@ -61,11 +61,16 @@
 </head>
 <body class="main-bg py-4 sm:py-8">
     <div class="w-full max-w-3xl mx-auto p-2 sm:p-4">
-        <header class="flex justify-between items-center mb-4 px-1">
-            <h1 class="text-2xl sm:text-3xl font-bold header-text">지원서 목록</h1>
-            <div class="flex items-center space-x-2">
-                <select id="activity-filter" class="dropdown border-2 rounded-lg p-2 bg-white text-sm sm:text-base"></select>
-                <select id="applicant-dropdown" class="dropdown border-2 rounded-lg p-2 bg-white text-sm sm:text-base"></select>
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-4 px-1">
+            <h1 class="text-2xl sm:text-3xl font-bold header-text mb-4 sm:mb-0">지원서 목록</h1>
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <select id="activity-filter" class="dropdown w-1/3 sm:w-auto border-2 rounded-lg p-2 bg-white text-sm sm:text-base"></select>
+                <!-- 정렬 버튼을 드롭다운으로 변경 -->
+                <select id="sort-order-dropdown" class="dropdown w-1/3 sm:w-auto border-2 rounded-lg p-2 bg-white text-sm sm:text-base">
+                    <option value="time">지원순</option>
+                    <option value="name">이름순</option>
+                </select>
+                <select id="applicant-dropdown" class="dropdown w-1/3 sm:w-auto border-2 rounded-lg p-2 bg-white text-sm sm:text-base"></select>
             </div>
         </header>
 
@@ -425,22 +430,29 @@ function populateActivityFilter() {
 /**
  * 선택된 필터에 따라 지원자를 필터링하고 화면을 다시 렌더링
  */
-function filterAndRender() {
+ function filterAndRender() {
     const selectedActivity = activityFilter.value;
+    const sortOrder = document.getElementById('sort-order-dropdown').value; // 정렬 순서 가져오기
     const activityKey = "지만지드라마 브랜드 체험전에서 참여하고 싶은 활동";
 
+    // 1. 필터링
     if (selectedActivity === '전체') {
-        currentApplicants = allApplicants;
+        currentApplicants = [...allApplicants];
     } else {
         currentApplicants = allApplicants.filter(applicant => 
             applicant[activityKey] && applicant[activityKey].includes(selectedActivity)
         );
     }
     
+    // 2. 정렬
+    if (sortOrder === 'name') {
+        currentApplicants.sort((a, b) => a['이름'].localeCompare(b['이름'], 'ko'));
+    }
+    // 'time' 순서는 원본 배열 순서를 따르므로 별도 정렬이 필요 없습니다.
+
     currentIndex = 0;
     renderSliderContent();
 }
-
 /**
  * 필터링된 데이터를 기반으로 슬라이더의 모든 컨텐츠(카드, 드롭다운, 점)를 생성
  */
@@ -549,13 +561,18 @@ function updateUI() {
 /**
  * 모든 이벤트 리스너 등록
  */
-function addEventListeners() {
+ function addEventListeners() {
+    const sortOrderDropdown = document.getElementById('sort-order-dropdown');
+
     activityFilter.addEventListener('change', filterAndRender);
+    sortOrderDropdown.addEventListener('change', filterAndRender); // 정렬 드롭다운 이벤트 추가
+    
     applicantDropdown.addEventListener('change', (e) => {
         currentIndex = parseInt(e.target.value);
         updateUI();
     });
-    
+
+    // --- 이하 스와이프 관련 이벤트 리스너는 그대로 둡니다 ---
     sliderContainer.addEventListener('mousedown', touchStart);
     sliderContainer.addEventListener('touchstart', touchStart, { passive: true });
     sliderContainer.addEventListener('mouseup', touchEnd);
@@ -566,7 +583,6 @@ function addEventListeners() {
     
     window.addEventListener('resize', updateUI);
 }
-
 // --- 스와이프 관련 함수들 ---
 function touchStart(event) {
     if (event.target.tagName === 'SELECT' || currentApplicants.length <= 1) return;
