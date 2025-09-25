@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡찌릿찌릿, 예민도 측정 테스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+/* [추천 1] 애니메이션 그라데이션 게이지 CSS */
+#gauge-fill {
+    /* 아름다운 그라데이션 색상 */
+    background: linear-gradient(90deg, #ff81ae 0%, #a269ff 100%);
+    width: 0%; /* JS로 너비 조절 */
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); /* 부드러운 애니메이션 */
+}
+
+/* 빛이 지나가는 쉬머(Shimmer) 효과 */
+#gauge-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2.5s infinite linear;
+    opacity: 0; /* 평소엔 숨김 */
+}
+
+/* 게이지가 차오른 후에만 빛 효과가 나타나도록 */
+#gauge-fill[style*="width: 0%"]::after {
+    opacity: 0;
+}
+#gauge-fill:not([style*="width: 0%"])::after {
+    opacity: 1;
+}
+
+
+/* 쉬머 애니메이션 정의 */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* [추가] 결과 설명(character-description) 스타일 */
+#character-description {
+    font-size: 0.95rem; /* 기본 폰트보다 살짝 작게 */
+    color: #4b5563;     /* 너무 진하지 않은 부드러운 회색 */
+    line-height: 1.6;   /* 줄 간격을 살짝 넓혀 가독성 확보 */
+
+    /* 왼쪽 인용구처럼 보이도록 장식 */
+    background-color: #f9fafb; /* 살짝 다른 배경색 */
+    border-left: 3px solid #fbcfe8; /* 테마에 맞는 핑크색 라인 */
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* [수정] 예민한 순간(sensitive-moment) 섹션 제목 스타일 */
+#sensitive-moment-section h3 {
+    font-size: 1.2rem;
+    font-weight: 700; /* 제목을 더 굵게 */
+    color: #111827;   /* 더 진한 검은색으로 강조 */
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb; /* 아래에 얇은 선 추가 */
+    margin-bottom: 1rem;
+}
+
+/* [수정] 예민한 순간 내용 스타일 */
+#sensitive-moment-content {
+    background-color: transparent; /* 배경색 제거하여 차별화 */
+    padding: 0;
+    font-weight: 500; /* 설명을 중간 굵기로 */
+    color: #1f2937;   /* 설명보다 진한 회색으로 강조 */
+}
+
+/* [추가] 공유 버튼 스타일 */
+/* [수정] 공유 버튼 전체 스타일 */
+.share-buttons-container {
+    display: flex;
+    gap: 16px; /* 버튼 사이 간격 */
+    justify-content: center;
+    margin-top: 24px;
+    padding-bottom: 24px;
+}
+
+/* 모든 버튼의 기본 스타일 */
+.share-button {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent; /* 테두리 공간 확보 */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* 마우스를 올렸을 때의 공통 효과 */
+.share-button:hover {
+    transform: translateY(-4px); /* 살짝 떠오르는 효과 */
+    filter: brightness(0.95); /* 살짝 어두워지며 입체감 */
+}
+
+/* 아이콘 기본 스타일 */
+.share-button i {
+    font-size: 26px;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* --- 각 버튼 별 색상 지정 --- */
+
+/* 1. 카카오톡 버튼 */
+.share-button.kakao {
+    background-color: #FEE500; /* 카카오 노란색 */
+}
+.share-button.kakao i {
+    color: #000000; /* 아이콘은 검은색 */
+}
+
+/* 2. X (트위터) 버튼 */
+.share-button.x {
+    background-color: #000000; /* X 검은색 */
+}
+.share-button.x i {
+    color: #FFFFFF; /* 아이콘은 흰색 */
+}
+
+/* 3. 인스타그램 링크 (아웃라인 스타일) */
+.share-button.instagram {
+    background-color: transparent; /* 배경은 투명하게 */
+    border-color: #E1306C; /* 인스타그램 대표 핑크색 테두리 */
+}
+.share-button.instagram i {
+    color: #E1306C; /* 아이콘도 같은 핑크색 */
+}
+
+/* 인스타그램 버튼에 마우스를 올리면 색이 채워지는 효과 */
+.share-button.instagram:hover {
+    background-color: #E1306C;
+    filter: none; /* 밝기 변화는 제거 */
+}
+.share-button.instagram:hover i {
+    color: #FFFFFF; /* 아이콘은 흰색으로 */
+}
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-800">
+
+    <div id="app" class="max-w-md mx-auto min-h-screen bg-white shadow-lg">
+
+        <!-- 시작 페이지 -->
+        <div id="start-page" class="flex flex-col items-center justify-center h-screen p-8 text-center">
+            <h1 class="text-4xl font-bold mb-4">⚡찌릿찌릿, <br>예민도 측정 테스트</h1>
+            <p class="text-gray-600 mb-8">예민 지수에 따라 희곡을 추천해 드려요.</p>
+            <div class="w-48 h-48 bg-pink-100 rounded-full flex items-center justify-center mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            </div>
+            <button onclick="startTest()" class="w-full bg-pink-400 text-white font-bold py-4 px-6 rounded-full hover:bg-pink-500 transition-colors duration-300 shadow-lg">
+                테스트 시작하기
+            </button>
+
+            <div class="share-buttons-container">
+                <button onclick="shareToKakao()" class="share-button kakao" data-tooltip="카카오톡으로 공유">
+                    <i class="fa-solid fa-comment"></i>
+                </button>
+                <button onclick="shareToX()" class="share-button x" data-tooltip="X에 공유">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </button>
+                <button onclick="shareToInstagram()" class="share-button instagram" data-tooltip="지만지드라마 인스타그램">
+                    <i class="fa-brands fa-instagram"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 질문 페이지 -->
+        <div id="quiz-page" class="hidden p-6">
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                <div id="progress-bar" class="bg-pink-400 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <div class="text-center mb-6">
+                <p id="question-counter" class="text-sm text-gray-500"></p>
+                <h2 id="question-text" class="text-xl font-bold mt-2 h-20"></h2>
+            </div>
+            <div id="answers-container" class="space-y-3">
+                <!-- 답변 버튼들이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </div>
+
+        <!-- 결과 페이지 -->
+         <!-- 결과 페이지 -->
+         <div id="result-page" class="hidden p-8">
+            <div class="text-center">
+                <p class="text-gray-600">당신의 예민도 레벨은</p>
+                <div class="flex items-baseline justify-center gap-2 my-2">
+                    <span id="character-level" class="text-2xl font-bold text-pink-500"></span>
+                    <h2 id="character-name" class="text-3xl font-bold"></h2>
+                </div>
+                <img id="character-image" src="" alt="결과 캐릭터 이미지" class="w-48 h-48 mx-auto rounded-full object-cover my-6 shadow-xl">
+                
+                <div id="gauge-container" class="w-full h-4 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                    <div id="gauge-fill" class="h-full rounded-full relative"></div>
+                </div>
+
+                <div id="character-description" class="text-gray-700 mt-6 text-left bg-slate-100 p-5 rounded-lg"></div>
+            </div>
+
+            <div id="sensitive-moment-section" class="mt-8">
+                <h3 class="text-xl font-bold mb-4">나는 이럴 때 예민해요!</h3>
+                <div id="sensitive-moment-content" class="bg-slate-100 p-5 rounded-lg space-y-3 text-gray-700">
+                   <!-- 예민한 순간 내용이 여기에 들어갑니다 -->
+                </div>
+           </div>
+           
+           <div id="play-recommendation-section" class="mt-8">
+               <h3 class="text-xl font-bold mb-4">이런 희곡 어때요?</h3>
+               <div class="bg-white p-6 rounded-lg shadow-md border">
+                   <div class="flex gap-4 items-start">
+                       <img id="play-image" src="" alt="추천 희곡 표지" class="w-24 h-36 object-cover rounded flex-shrink-0 shadow-sm">
+                       <div class="flex flex-col flex-1">
+                           <h4 id="play-title" class="text-lg font-bold text-pink-500"></h4>
+                           <p id="play-author" class="text-sm text-gray-500 mb-3"></p>
+                           <p id="play-description" class="text-gray-600 text-sm"></p>
+                       </div>
+                   </div>
+                   <button class="w-full mt-6 bg-gray-800 text-white font-bold py-3 px-4 rounded-full hover:bg-black transition-colors">
+                       구매하기
+                   </button>
+               </div>
+           </div>
+
+
+            <button onclick="restartTest()" class="w-full mt-10 bg-pink-400 text-white font-bold py-4 px-6 rounded-full hover:bg-pink-500 transition-colors duration-300 shadow-lg">
+                테스트 다시하기
+            </button>
+        </div>
+    </div>
+
+    <script>
+    // [추가] 카카오 SDK 초기화
+    Kakao.init('ebe32603af5a77385396832db327f040'); // 👈 여기에 발급받은 키를 넣으세요!
+
+    // [추가] 공유 함수들
+    const zmanzInstagramUrl = 'https://www.instagram.com/zmanzdrama/';
+    
+                const questions = [
+            // 가족
+            { category: '가족', text: '가족과 사소한 일로 다투는데 "넌 왜 그렇게 예민하냐"며 면박을 준다.', answers: [ { text: '한 귀로 듣고 흘린다', score: 0 }, { text: '내가 예민하다고…?', score: 1 }, { text: '나의 행동을 곱씹는다', score: 2 }, { text: '반박한다', score: 3 } ] },
+            { category: '가족', text: '가족이 내 옷을 몰래 입었다.', answers: [ { text: '입었다는 사실조차 모른다.', score: 0 }, { text: '그런가 보다 하고 넘긴다.', score: 1 }, { text: '“말하고 입을래?”', score: 2 }, { text: '“절대 입지 마!”', score: 3 } ] },
+            // 인간관계
+            { category: '인간관계', text: '이전에 했던 얘기를 친구가 기억 못 한다.', answers: [ { text: '“그럴 수 있지” 대수롭지 않게 넘긴다', score: 0 }, { text: '“괜찮아"라고 말하지만 속으로 서운하다', score: 1 }, { text: '서운한 마음이 표정에 드러난다', score: 2 }, { text: '“서운하다"고 직접 말한다', score: 3 } ] },
+            { category: '인간관계', text: '무리로 노는 친구들 중 소수가 나 빼고 따로 모였다는 사실을 인스타그램 스토리를 보고 알게 됐다.', answers: [ { text: '재밌게 놀았네~ 스토리에 답장하거나 하트를 누른다.', score: 0 }, { text: '그런가 보다 하고 넘긴다.', score: 1 }, { text: '왜 나는 안 불렀을까? 조금 서운해한다.', score: 2 }, { text: '나 빼고 논 게 분명히 이유가 있을 거라 생각해 이후 조금씩 거리를 둔다.', score: 3 } ] },
+            // 사랑
+            { category: '사랑', text: '애인이 만나기로 한 당일에 실수로 약속을 이중으로 잡았다고 내일 만날 수 없겠냐고 한다. 내일 마침 약속이 있다.', answers: [ { text: '“그럼 이 날은 어때?” 적극적으로 다른 날을 잡는다.', score: 0 }, { text: '“다음 주에 만나지, 뭐~” 그럴 수 있다고 생각하며 넘긴다.', score: 1 }, { text: '“괜찮아"라고 말하지만 속으로 서운하다.', score: 2 }, { text: '“나는 미리 시간을 빼 놓은 건데… 나한테 좀 더 신경 써 줘.” 크게 서운하다.', score: 3 } ] },
+            { category: '사랑', text: '애인이 바쁘다고 하루종일 연락이 없다.', answers: [ { text: '나도 일에 열중하고 있어서 눈치 못 챈다.', score: 0 }, { text: '나도 일에 열중하고 있다가 문득 휴대폰을 확인한다.', score: 1 }, { text: '왜 연락이 없지? 기다린다.', score: 2 }, { text: '왜 연락이 안 되냐고 카톡하거나 전화한다.', score: 3 } ] },
+            // 직업
+            { category: '직업', text: '회의에 너무 많은 시간을 보내는 회사 생활, 정작 내 업무를 할 시간이 없다', answers: [ { text: '“일은 일일 뿐” 깊게 생각하지 않는다', score: 0 }, { text: '“회사 생활이 다 그런가 보다” 대충 규칙에 맞춘다', score: 1 }, { text: '“이 상태가 유지되면 이직을 고려해 봐야지” 진지하다', score: 2 }, { text: '“회사에서 나의 쓸모가 무엇인지” 고민한다', score: 3 } ] },
+            { category: '직업', text: '공감 가지 않는 지시를 따라야 한다. 상대는 나의 직속 상사다.', answers: [ { text: '상사의 지시를 따른다', score: 0 }, { text: '타협 지점을 찾는다', score: 1 }, { text: '자신의 의견을 어필한다', score: 2 }, { text: '팀 이동을 건의한다', score: 3 } ] },
+            // 정체성
+            { category: '정체성', text: '당신의 행동을 누군가 오해하고 제삼자에게 잘못된 소문을 퍼뜨리고 있다는 걸 알았다.', answers: [ { text: '“오해는 오해일 뿐. 나만 떳떳하면 되지~”', score: 0 }, { text: '“나에 대해 뭘 안다고?”', score: 1 }, { text: '“내가 오해할 만한 행동을 했던가?”', score: 2 }, { text: '“신경 쓰이네…”', score: 3 } ] },
+            { category: '정체성', text: '지하철을 탔는데 내 앞에 메이드복을 입고 코스프레한 사람이 있다.', answers: [ { text: '주변을 잘 의식하지 않아 모른다', score: 0 }, { text: '사람들이 힐끔거리는 쪽을 쳐다본다', score: 1 }, { text: '다들 신경 쓰지 않는데 나는 자꾸 시선이 간다', score: 2 }, { text: '코스프레 문화에 관심이 생긴다', score: 3 } ] },
+            // 사회문제
+            { category: '사회문제', text: '영화를 보는데 피를 흘리는 장면이 나왔을 때,', answers: [ { text: '진짜 상황이 아니니까 아무렇지 않다.', score: 0 }, { text: '손으로 가리면서 볼 건 다 본다.', score: 1 }, { text: '그 장면만 건너뛰고 다시 집중한다.', score: 2 }, { text: '다 보지 못하고 영화를 끈다.', score: 3 } ] },
+            { category: '사회문제', text: '당신은 트위터 논쟁에,', answers: [ { text: '크게 관심 없다', score: 0 }, { text: '관심 있는 논쟁거리면 재게시한다', score: 1 }, { text: '해당 트윗을 인용해 의견을 단다', score: 2 }, { text: '생각을 정리해 트위터에 게시한다', score: 3 } ] }
+        ];
+
+        const results = {
+            'Lv.0': { 
+                name: '만사평온 부처', 
+                img: './img/lv0.jpg', 
+                personality: '웬만한 일엔 화도 안 나요. <br>누가 뭐라고 해도 “그럴 수도 있지~”가 먼저 나와요. <br>뭐라 하든 대부분 웃고 넘겨요. <br>예민할 틈이 없기도 해요. 에너지 아까우니까. <br>한두 번 뒤끝은 남지만 보통 뒤돌아서면 금방 잊어요!' 
+            },
+            'Lv.1': { 
+                name: '미묘 예민러', 
+                img: './img/lv1.jpg', 
+                personality: '신경을 곤두세우는 일은 거의 없어요. <br>누가 뭐라 해도 “그럴 수도 있지” 하고 넘기는 편. <br>오늘은 아무 생각 없이 걷다가 마음 가는 카페에 들를 거예요.' 
+            },
+            'Lv.2': { 
+                name: '감지 예민러', 
+                img: './img/lv2.jpg', 
+                personality: '말투, 표정, 대화 템포까지 전부 캐치해요. <br>"그냥 한 말이야"가 제일 상처돼요. <br>혼자 끙끙대다 괜찮은 척하기도 해요. <br>억울해도 \'내가 예민한가?\' 하고 스스로를 의심하죠. <br>감정은 나만 아는 일기장에 저장 중.' 
+            },
+            'Lv.3': { 
+                name: '촉각 예민러', 
+                img: './img/lv3.jpg', 
+                personality: '어떤 말은 밤에 자꾸 생각나요. <br>눈물은 안 나는데 마음이 무거운 날이 있어요. <br>그럴 땐 자꾸 고양이 짤 저장하게 돼요. <br>오늘은 침대에 누워 영상 보며 깔깔 웃고 뒹굴거릴 예정!' 
+            },
+            'Lv.4': { 
+                name: '번개 예민러', 
+                img: './img/lv4.jpg', 
+                personality: '웬만하면 참지만 쌓이고, 쌓이고, 또 쌓이다가 어느 순간 “그만해!” 나오죠. <br>감정 기복이 심한 거 같긴 해요. <br>모두가 웃고 있어도 난 불편하면 웃을 수 없어요. <br>오늘은 동네 산책하며 저녁 시간을 보내요.' 
+            },
+            'Lv.5': { 
+                name: '천둥신 예민러', 
+                img: './img/lv5.jpg', 
+                personality: '웬만하면 모임은 안 나가요. <br>사람 많은 데 가면 자동으로 눈치 모드 ON. <br>소리, 향, 조명, 말투, 분위기... 다 캐치돼요. 못 본 척이 안 돼요. <br>오늘은 조용한 방 안에서 이어폰 끼고, 감정선 예민한 영화 한 편 보면 딱!' 
+            }
+        };
+
+        const categoryInfo = {
+            '가족': { title: '가족 관계', content: `<p class="mb-2">✔️ 내 선택이나 생활 방식을 세세하게 간섭받을 때</p><p>✔️ 내 노력이 제대로 인정받지 못한다고 느낄 때</p>`},
+            '인간관계': { title: '인간관계', content: `<p class="mb-2">✔️ 다들 활발히 얘기하다가 내가 말하자 갑자기 조용해질 때</p><p>✔️ 친구들끼리 다 아는 얘기를 나만 모르고 있을 때</p>`},
+            '사랑': { title: '사랑과 연애', content: `<p class="mb-2">✔️ 내가 기대한 관심이나 애정을 받지 못할 때</p><p>✔️ 상대가 나의 시간을 가볍게 여길 때</p>`},
+            '직업': { title: '직업과 커리어', content: `<p class="mb-2">✔️ 내가 쓴 보고서에서 오타 하나를 발견했을 때</p><p>✔️ 내가 납득하지 못하는 지시를 억지로 따라야 할 때</p>`},
+            '정체성': { title: '나의 정체성', content: `<p class="mb-2">✔️ 내 취향이 의외라는 반응을 들을 때</p><p>✔️ 내가 한 행동이 과장되게 받아들여질 때</p>`},
+            '사회문제': { title: '사회문제', content: `<p class="mb-2">✔️ 혐오 표현을 아무렇지 않게 주고받는 분위기일 때</p><p>✔️ 진지한 사회 이슈를 얘기하는데, 상대가 농담처럼 가볍게 대할 때</p>`}
+        };
+        
+        let playRecommendations = {}; 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('books.csv')
+                .then(response => response.text())
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            const structuredData = {};
+                            results.data.forEach(book => {
+                                const { level, category, title, author, desc, img, link } = book;
+                                if (level === 'Lv.0') {
+                                    structuredData['Lv.0'] = { title, author, desc, img: './img/' + img, link: 'https://zmanzdrama.com'+ link };
+                                } else {
+                                    if (!structuredData[level]) {
+                                        structuredData[level] = {};
+                                    }
+                                    structuredData[level][category] = { title, author, desc, img: './img/' + img, link: 'https://zmanzdrama.com'+ link };
+                                }
+                            });
+                            playRecommendations = structuredData;
+                            console.log("📚 도서 정보 로딩 완료!", playRecommendations);
+                        }
+                    });
+                });
+        });       // --- 수정된 부분 ---
+
+        let currentQuestionIndex = 0;
+        let scores = { '가족': 0, '인간관계': 0, '사랑': 0, '직업': 0, '정체성': 0, '사회문제': 0 };
+        
+        // 1. 게이지 인스턴스를 저장할 변수 추가
+        let sensitivityGauge = null; 
+        // 2. 기존 animationFrameId 변수는 제거
+
+        const startPage = document.getElementById('start-page');
+        const quizPage = document.getElementById('quiz-page');
+        const resultPage = document.getElementById('result-page');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const gaugeFill = document.getElementById('gauge-fill');
+
+
+        function shareToKakao() {
+        // 현재 페이지가 결과 페이지인지 확인
+        const resultPage = document.getElementById('result-page');
+        const isResultPage = !resultPage.classList.contains('hidden');
+        
+        let title = '⚡찌릿찌릿, 예민도 측정 테스트';
+        let description = '내 예민 지수는 어느 정도일까? 지만지드라마가 희곡을 추천해 드려요.';
+        let imageUrl = './img/main-thumbnail.jpg'; // 👈 대표 썸네일 이미지 주소
+        
+        // 결과 페이지라면 내용 변경
+        if (isResultPage) {
+            const level = document.getElementById('character-level').textContent;
+            const name = document.getElementById('character-name').textContent;
+            const characterImg = document.getElementById('character-image').src;
+            
+            title = `나의 예민도 결과는? ${level} ${name}`;
+            description = `당신도 테스트해보고 지만지드라마가 추천하는 희곡을 만나보세요!`;
+            imageUrl = characterImg;
+        }
+
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: title,
+                description: description,
+                imageUrl: imageUrl,
+                link: {
+                    mobileWebUrl: window.location.href,
+                    webUrl: window.location.href,
+                },
+            },
+            buttons: [
+                {
+                    title: '결과 확인하기',
+                    link: {
+                        mobileWebUrl: window.location.href,
+                        webUrl: window.location.href,
+                    },
+                },
+            ],
+        });
+    }
+
+    function shareToX() {
+        const text = '⚡찌릿찌릿, 예민도 측정 테스트! 내 예민 지수에 따라 지만지드라마가 희곡을 추천해 드려요.';
+        const url = window.location.href;
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+    }
+
+    function shareToInstagram() {
+        window.open(zmanzInstagramUrl, '_blank');
+    }
+
+        function startTest() {
+            currentQuestionIndex = 0;
+            scores = { '가족': 0, '인간관계': 0, '사랑': 0, '직업': 0, '정체성': 0, '사회문제': 0 };
+            startPage.classList.add('hidden');
+            quizPage.classList.remove('hidden');
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                progressBar.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+                questionCounter.textContent = `Q${currentQuestionIndex + 1} / ${questions.length}`;
+                questionText.textContent = question.text;
+                answersContainer.innerHTML = '';
+
+                question.answers.forEach(answer => {
+                    const button = document.createElement('button');
+                    button.textContent = answer.text;
+                    button.className = 'w-full p-4 my-2 bg-white border border-gray-300 rounded-lg text-left transition-colors hover:bg-pink-100 hover:border-pink-400';
+                    button.onclick = () => selectAnswer(answer.score, question.category);
+                    answersContainer.appendChild(button);
+                });
+            } else {
+                showResults();
+            }
+        }
+
+        function selectAnswer(score, category) {
+            scores[category] += score;
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        // --- 수정된 부분 ---
+        // 3. 기존의 updateGauge 함수는 전체 삭제합니다.
+        //    (새로운 라이브러리가 이 역할을 대신합니다)
+
+        function showResults() {
+    quizPage.classList.add('hidden');
+    resultPage.classList.remove('hidden');
+
+    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    let level;
+
+    if (totalScore === 0) { level = 'Lv.0'; }
+    else if (totalScore >= 1 && totalScore <= 7) { level = 'Lv.1'; }
+    else if (totalScore >= 8 && totalScore <= 14) { level = 'Lv.2'; }
+    else if (totalScore >= 15 && totalScore <= 21) { level = 'Lv.3'; }
+    else if (totalScore >= 22 && totalScore <= 28) { level = 'Lv.4'; }
+    else { level = 'Lv.5'; }
+    
+    const resultData = results[level];
+
+    document.getElementById('character-level').textContent = level;
+    document.getElementById('character-name').textContent = resultData.name;
+    document.getElementById('character-image').src = resultData.img;
+    document.getElementById('character-description').innerHTML = `<p>${resultData.personality}</p>`;
+    
+    // --- [수정 없음] 게이지 채우는 코드는 그대로입니다. ---
+    const fillPercentage = (totalScore / 36) * 100;
+    const gaugeFill = document.getElementById('gauge-fill');
+    setTimeout(() => {
+        gaugeFill.style.width = `${fillPercentage}%`;
+    }, 100);
+
+    const sensitiveMomentSection = document.getElementById('sensitive-moment-section');
+    const playRecommendationSection = document.getElementById('play-recommendation-section');
+
+    playRecommendationSection.classList.remove('hidden');
+
+    if (level === 'Lv.0') {
+        sensitiveMomentSection.classList.add('hidden');
+        
+        // 👇 --- [수정된 부분 시작] ---
+        const recommendation = playRecommendations[level]; // CSV에서 읽어온 Lv.0 도서 정보
+        
+        if (recommendation) {
+            document.getElementById('play-image').src = recommendation.img;
+            document.getElementById('play-title').textContent = recommendation.title;
+            document.getElementById('play-author').textContent = `지은이: ${recommendation.author}`;
+            document.getElementById('play-description').textContent = recommendation.desc;
+
+            // [추가!] 구매하기 버튼을 찾아 클릭 이벤트를 설정합니다.
+            const purchaseButton = document.querySelector('#play-recommendation-section button');
+            purchaseButton.onclick = () => {
+                if (recommendation.link) {
+                    window.open(recommendation.link, '_blank'); // 새 탭에서 링크 열기
+                }
+            };
+        }
+        // 👆 --- [수정된 부분 끝] ---
+
+    } else {
+        sensitiveMomentSection.classList.remove('hidden');
+        
+        let maxScore = -1;
+        let highestCategories = [];
+        for (const category in scores) {
+            if (scores[category] > maxScore) {
+                maxScore = scores[category];
+                highestCategories = [category];
+            } else if (scores[category] === maxScore) {
+                highestCategories.push(category);
+            }
+        }
+
+        const highestCategory = highestCategories[Math.floor(Math.random() * highestCategories.length)];
+        document.getElementById('sensitive-moment-content').innerHTML = categoryInfo[highestCategory].content;
+        
+        // 👇 --- [수정된 부분 시작] ---
+        // CSV 데이터가 아직 로딩되지 않았을 수 있으므로, 데이터가 있는지 확인 후 처리합니다.
+        const recommendation = playRecommendations[level] ? playRecommendations[level][highestCategory] : null;
+
+        if (recommendation) {
+            document.getElementById('play-image').src = recommendation.img;
+            document.getElementById('play-title').textContent = recommendation.title;
+            document.getElementById('play-author').textContent = `지은이: ${recommendation.author}`;
+            document.getElementById('play-description').textContent = recommendation.desc;
+
+            // [추가!] 구매하기 버튼을 찾아 클릭 이벤트를 설정합니다.
+            const purchaseButton = document.querySelector('#play-recommendation-section button');
+            purchaseButton.onclick = () => {
+                if (recommendation.link) {
+                    window.open(recommendation.link, '_blank'); // 새 탭에서 링크 열기
+                }
+            };
+        }
+        // 👆 --- [수정된 부분 끝] ---
+    }
+}        
+        function restartTest() {
+    // 👇 [공통] 이 부분만 남겨주세요
+    const gaugeFill = document.getElementById('gauge-fill');
+    if (gaugeFill) {
+        gaugeFill.style.width = '0%';
+    }
+    
+    resultPage.classList.add('hidden');
+    startPage.classList.remove('hidden');
+}
+    </script>
+
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
+
+</body>
+</html>
